@@ -4,7 +4,7 @@ import xmlrpc.client
 
 import_data = []
 
-rl_13 = ""
+url_13 = ""
 db_13 = ""
 
 username = ''
