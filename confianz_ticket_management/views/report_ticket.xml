@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_helpdesk_ticket_with_incident">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <div class="header">
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="width:30%; vertical-align:middle;">
+                                    <img style="max-width:140px;" t-if="res_company.logo"
+                                         t-att-src="image_data_uri(res_company.logo)" alt="Logo"/>
+                                </td>
+                                <td style="width:30%; text-align:right;">
+                                    <h5 style="font-weight: 300;font-size: 25px;color: #0a0a0a;font-weight: 400;">
+                                        Incident Report
+                                    </h5>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+                         t-att-data-oe-lang="o and o.env.context.get('lang')">
+
+                        <div class="page">
+                            <div class="container">
+                                <h1 style="font-weight: 300;font-size: 25px;color: #7b7b7b;font-weight: 400;">
+                                    <u>Company Information</u>
+                                </h1>
+                                <table class="table-borderless">
+                                    <tr>
+                                        <td style="padding-right: 50px;">Company:</td>
+                                        <td t-if='o.partner_id.parent_id' style="padding-left: 30px;">
+                                            <t t-esc="o.partner_id.parent_id.name"/>
+                                        </td>
+                                        <td t-else='else' style="padding-left: 30px;">
+                                            <t t-esc="o.partner_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-right: 50px;">Contact Name:</td>
+                                        <td style="padding-left: 30px;">
+                                            <t t-esc="', '.join(o.contact_ids.mapped('name'))"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.reported_by_phone">
+                                        <td style="padding-right: 50px;">Contact Phone #:</td>
+                                        <td style="padding-left: 30px;">
+                                            <t t-esc="o.reported_by_phone "/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <br/>
+                                <h1 style="font-weight: 300;font-size: 25px;color: #7b7b7b;font-weight: 400;">
+                                    <u>Incident Report</u>
+                                </h1>
+                                <table class="table-borderless">
+                                    <tr>
+                                        <td style="padding-right: 50px;">Reported By:</td>
+                                        <td>
+                                            <t t-esc="o.reported_by.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-right: 50px;">Date Reported:</td>
+                                        <td>
+                                            <t t-esc="o.reported_time.strftime('%m/%d/%Y') if o.reported_time else False"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-right: 50px;">Report Method Used:</td>
+                                        <td>
+                                            <t t-esc="o.action_taken_id.name "/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-right: 50px;">Date of Incident:</td>
+                                        <td>
+                                            <t t-esc="o.reported_time.strftime('%m/%d/%Y') if o.reported_time else False"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <h5>Incident Details</h5>
+                                <div style="border: 1px solid black;padding: 30px;">
+                                    <t t-esc="o.description"/>
+                                </div>
+                                <h5>Action Taken</h5>
+                                <div style="border: 1px solid black;padding: 30px;">
+                                    <t t-esc="o.fix"/>
+                                </div>
+                                <br/>
+                                <div class="row" style="margin-left:4px;">
+                                    <t t-foreach="o.get_stage_ids()" t-as="line">
+                                        <input class="form-check"
+                                               style="height: 25px;width: 25px;display: block;background-color: #000000;border:0;"
+                                               checked="checked" t-if="line.id==o.stage_id.id"/>
+                                        <input class="form-check"
+                                               style="height: 25px;width: 25px;display: block;background-color: #0000;"
+                                               t-if="line.id !=o.stage_id.id"/>
+                                        <span  style="padding:10px; " t-esc="line.name"/>
+                                    </t>
+                                </div>
+
+                                <br/>
+                                <h5>Recommended Follow Up By<u> <t t-esc="user.company_id.name"/></u>:
+                                </h5>
+                                <div style="border: 1px solid black;padding: 30px;">
+                                    <t t-esc="o.internal_follow_up"/>
+                                </div>
+                                <h5>Recommended Follow Up By <u><t t-esc="o.partner_id.parent_id.name or o.partner_id.name"/></u>:
+                                </h5>
+                                <div style="border: 1px solid black;padding: 30px;">
+                                    <t t-esc="o.external_follow_up"/>
+                                </div>
+                                <h5>Comments:</h5>
+                                <div style="border: 1px solid black;padding: 30px;">
+                                    <t t-esc="o.reason"/>
+                                </div>
+                                <br/>
+                                <div class="row" style="margin-left:px;">
+                                        <span class='col' colspan="2">Technician : <u  style="color: #0a0a0a;font-weight: 200;font-size: 20px;" ><t t-esc="o.technician_id.name"/></u></span>
+                                        <span style="padding-right:10px;padding-left:200px;">Date : <u style="font-weight: 400;font-size: 20px;"><t t-esc="time.strftime('%m/%d/%Y', time.localtime())"/></u></span>
+                                        <span >Time : <u style="font-weight: 400;font-size: 20px;"><t t-esc="time.strftime('%H:%M %p', time.localtime())"/></u></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="footer text-center" style="font-size:14px; color: #5d5d5d">
+                         <div t-if="report_type == 'pdf'">
+                            Page: <span class="page"/> / <span class="topage"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

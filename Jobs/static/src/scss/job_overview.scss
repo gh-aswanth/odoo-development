@@ -1,0 +1,87 @@
+ .o_progress_sale_amount {
+background-color: #ff80ff;
+color: white;
+cursor: pointer;
+}
+.o_progress_sale_residual {
+background-color: #2eb82e;
+color: white;
+cursor: pointer;
+}
+ .o_progress_invoice_amount {
+background-color: #ff80bf;
+color: white;
+cursor: pointer;
+}
+.o_progress_invoice_residual {
+background-color: #bb99ff;
+color: white;
+cursor: pointer;
+}
+.o_progress_bill_amount {
+background-color: #00ffff;
+color: white;
+cursor: pointer;
+}
+.o_progress_bill_residual {
+background-color: #00cccc;
+color: white;
+cursor: pointer;
+}
+.o_progress_purchase_qty {
+background-color: #00ffff;
+color: white;
+cursor: pointer;
+}
+.o_progress_bill_internal_qty {
+background-color: #00cccc;
+color: white;
+cursor: pointer;
+}
+.o_progress_budget_amount {
+background-color: #2eb82e;
+color: white;
+cursor: pointer;
+}
+.o_progress_budget_excess {
+background-color: #ff3377;
+color: white;
+cursor: pointer;
+}
+.o_specia_line {
+background-color: #ffebe6;
+color: white;
+cursor: pointer;
+}
+>.o_job_plan_badge {
+            margin-bottom: 10px;
+            > .badge {
+                border: none;
+                font-size: unset;
+                    a {
+                    color: white;
+        }
+    }
+}
+.o_job_kanban_box{
+cursor: pointer;
+> div {
+        font-weight: 500;
+
+        button.o_needaction {
+            font-size: small;
+            font-weight: 400;
+            margin-left: 4px;
+            @include o-hover-opacity(0.5, 1);
+
+            &:before {
+                content: "/ ";
+            }
+
+            &:after {
+                content: "\f086";
+                font: normal normal normal 14px/1 FontAwesome;
+            }
+        }
+    }
+}

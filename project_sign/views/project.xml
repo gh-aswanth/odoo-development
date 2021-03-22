@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id='manual_send_proposal_to_user' model='ir.ui.view'>
+            <field name='name'>manual.send.proposal.to.user</field>
+            <field name='model'>project.project</field>
+            <field name='inherit_id' ref='project_extension.project_view_inherit'/>
+            <field name='arch' type='xml'>
+                <xpath expr="//header" position='inside'>
+                    <button string="Send Agreement" type="object" name="action_send_agreement" class='oe_highlight' context="{'default_project_id': id}" attrs="{'invisible': ['|',('signed_state','!=','draft'),('state','!=','proposal_accepted')]}"/>
+                </xpath>
+                
+                <xpath expr="//notebook//page[@name='project_info']//group" positon="after">
+                        <group  string='Sign' attrs="{'invisible': [('state','!=','proposal_accepted')]}" col='2' colspan='2'>
+                            <group colspan='1'>
+                                <field name='agreement_sign_ids'  readonly="1">
+                                    <tree>
+                                        <field name="partner_id"/>
+                                        <field name="role_id"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </group>
+                            <group>
+                                <field name='signed_state' readonly="1"/>
+                                <field name='agreement_id' readonly="1"/>   
+                            </group>  
+                       </group>
+               </xpath>
+               
+               <xpath expr="//button[@name='%(project_extension.project_invoice_wizard_action)d']" position="attributes">
+                    <attribute name="attrs">{'invisible':[('signed_state','!=','signed')]}</attribute>
+               </xpath>
+               
+               <xpath expr="//button[@name='action_open_milestone']" position="attributes">
+                    <attribute name="attrs">{'invisible':['|', ('project_type', '!=', 'milestone'), ('signed_state','!=','signed')]}</attribute>
+               </xpath>
+               
+               <xpath expr="//notebook/page[@name='project_info']//group[@name='invoice']" position="attributes">
+                    <attribute name="attrs">{'invisible':[('signed_state','!=','signed')]}</attribute>
+               </xpath>
+                
+               <xpath expr="//notebook/page[@name='project_info']//field[@name='product_id']" position="attributes">
+                    <attribute name="attrs">{'required': [('signed_state', '=', 'signed')],'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}</attribute>
+               </xpath>
+               <xpath expr="//notebook/page[@name='project_info']//field[@name='invoice_alert_ids']" position="attributes">
+                    <attribute name="attrs">{'required': [('signed_state', '=', 'signed')],'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}</attribute>
+               </xpath>
+               <xpath expr="//notebook/page[@name='project_info']//field[@name='billing_frequency']" position="attributes">
+                    <attribute name="attrs">{'required': [('signed_state', '=', 'signed')],'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}</attribute>
+               </xpath>
+               <xpath expr="//notebook/page[@name='project_info']//field[@name='bill_mode']" position="attributes">
+                    <attribute name="attrs">{'required': [('signed_state', '=', 'signed')],'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}</attribute>
+               </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
+

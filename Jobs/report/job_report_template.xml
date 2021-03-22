@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <template id="report_joborder_document">
+            <t t-call="web.external_layout">
+                <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                <t t-set="address">
+                    <div t-if="doc.customer_type == 'existing'" t-field="doc.partner_id"
+                         t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+                    <div t-if="doc.customer_type == 'new'"
+                         style="vertical-align:middle; white-space:nowrap; line-height:22px;">
+                        <span t-esc="doc.partner_name"/>
+                        <br/>
+                        <span t-esc="doc.street"/>
+                        <span t-esc="doc.street2"/>
+                        <br/>
+                        <span t-esc="doc.city"/>
+                        ,
+                        <span t-esc="doc.state_id.code"/>
+                        <span t-esc="doc.zip"/>
+                        <br/>
+                        <span t-esc="doc.customer_phone"/>
+                    </div>
+                    <p t-if="doc.partner_id.vat"><t t-esc="doc.company_id.country_id.vat_label or 'Tax ID'"/>: <span
+                            t-field="doc.partner_id.vat"/></p>
+                </t>
+                <t t-if="doc.partner_contact_id or doc.contact_name">
+                    <t t-set="information_block">
+                        <br/>
+                        <h4>Cotact Address:</h4>
+                        <div t-if="doc.customer_type == 'existing'" t-field="doc.partner_contact_id"
+                             t-options='{"widget": "contact", "fields": ["address", "name", "phone"], "no_marker": True, "phone_icons": True}'/>
+                        <div t-if="doc.customer_type == 'new'"
+                             style="vertical-align:middle; white-space:nowrap; line-height:22px;">
+                            <span t-esc="doc.contact_name"/>
+                            <br/>
+                            <span t-esc="doc.street"/>
+                            <span t-esc="doc.street2"/>
+                            <br/>
+                            <span t-esc="doc.city"/>
+                            ,
+                            <span t-esc="doc.state_id.code"/>
+                            <span t-esc="doc.zip"/>
+                            <br/>
+                            <span t-esc="doc.contact_phone"/>
+                        </div>
+                    </t>
+                </t>
+                <div class="page">
+                    <div class="oe_structure"/>
+                    <h2 class="mt16">
+                        <span t-if="doc.state not in ['draft','sent']">Order # </span>
+                        <span t-if="doc.state in ['draft','sent']">Estimation # </span>
+                        <span t-field="doc.name"/>
+                    </h2>
+                    <div class="row mt32 mb32" id="informations">
+                        <div t-if="doc.date_order and doc.state not in ['draft','sent']" class="col-auto mw-100 mb-2">
+                            <strong>Order Date:</strong>
+                            <p class="m-0" t-field="doc.date_order"/>
+                        </div>
+                        <div t-if="doc.date_order and doc.state in ['draft','sent']" class="col-auto mw-100 mb-2">
+                            <strong>Quotation Date:</strong>
+                            <p class="m-0" t-field="doc.date_order" t-options='{"widget": "date"}'/>
+                        </div>
+                        <div t-if="doc.user_id.name" class="col-auto mw-100 mb-2">
+                            <strong>Estimator:</strong>
+                            <p class="m-0" t-field="doc.user_id"/>
+                        </div>
+                    </div>
+                    <table class="table table-sm o_main_table">
+                        <thead>
+                            <tr>
+                                <th name="th_description" class="text-left">Description</th>
+                                <th name="th_quantity" class="text-right">Quantity</th>
+                                <th name="th_priceunit" class="text-right">Unit Price</th>
+                                <th name="th_subtotal" class="text-right">Sub Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="sale_tbody">
+                            <t t-if="doc.material_lines">
+                                <tr class="bg-200 font-weight-bold o_line_section">
+                                    <td name="td_section_line" colspan="99">
+                                        <span>Materials</span>
+                                    </td>
+                                </tr>
+                                <t t-foreach="doc.material_lines" t-as="line">
+                                    <tr>
+                                        <td name="td_name"><span t-field="line.name"/></td>
+                                        <td name="td_quantity" class="text-right">
+                                            <span t-field="line.order_qty"/>
+                                        </td>
+                                        <td name="td_priceunit" class="text-right">
+                                            <span t-field="line.unit_price"/>
+                                        </td>
+                                        <td name="td_subtotal" class="text-right o_price_total">
+                                            <span t-field="line.amount_total"/>
+                                        </td>
+                                    </tr>
+
+                                </t>
+
+                                <br/>
+                                <tr class="is-subtotal text-right">
+                                    <td name="td_section_subtotal" colspan="99">
+                                        <strong class="mr16">Total</strong>
+                                        <span t-field="doc.material_sub_total"
+                                              t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-if="doc.equipment_lines">
+                                <tr class="bg-200 font-weight-bold o_line_section">
+                                    <td name="td_section_line" colspan="99">
+                                        <span>Equipments</span>
+                                    </td>
+                                </tr>
+                                <t t-foreach="doc.equipment_lines" t-as="line">
+                                    <tr>
+                                        <td name="td_name"><span t-field="line.name"/></td>
+                                        <td name="td_quantity" class="text-right">
+                                            <span t-field="line.order_qty"/>
+                                        </td>
+                                        <td name="td_priceunit" class="text-right">
+                                            <span t-field="line.unit_price"/>
+                                        </td>
+                                        <td name="td_subtotal" class="text-right o_price_total">
+                                            <span t-field="line.amount_total"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <br/>
+                                <tr class="is-subtotal text-right">
+                                    <td name="td_section_subtotal" colspan="99">
+                                        <strong class="mr16">Total</strong>
+                                        <span t-field="doc.equipment_sub_total"
+                                              t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-if="doc.labour_lines">
+                                <tr class="bg-200 font-weight-bold o_line_section">
+                                    <td name="td_section_line" colspan="99">
+                                        <span>Labours</span>
+                                    </td>
+                                </tr>
+                                <t t-foreach="doc.labour_lines" t-as="line">
+                                    <tr>
+                                        <td name="td_name"><span t-field="line.name"/></td>
+                                        <td name="td_quantity" class="text-right">
+                                            <span t-field="line.order_qty"/>
+                                        </td>
+                                        <td name="td_priceunit" class="text-right">
+                                            <span t-field="line.unit_price"/>
+                                        </td>
+                                        <td name="td_subtotal" class="text-right o_price_total">
+                                            <span t-field="line.amount_total"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <br/>
+                                <tr class="is-subtotal text-right">
+                                    <td name="td_section_subtotal" colspan="99">
+                                        <strong class="mr16">Total</strong>
+                                        <span t-field="doc.labour_sub_total"
+                                              t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-if="doc.sub_contract_ids">
+                                <tr class="bg-200 font-weight-bold o_line_section">
+                                    <td name="td_section_line" colspan="99">
+                                        <span>Sub Contract</span>
+                                    </td>
+                                </tr>
+                                <t t-foreach="doc.sub_contract_ids" t-as="line">
+                                    <tr>
+                                        <td name="td_name"><span t-field="line.name"/></td>
+                                        <td></td>
+                                        <td name="td_priceunit" class="text-right">
+                                            <span t-field="line.estimated_price"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <br/>
+                                <tr class="is-subtotal text-right">
+                                    <td name="td_section_subtotal" colspan="99">
+                                        <strong class="mr16">Total</strong>
+                                        <span t-field="doc.contract_est_total"
+                                              t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <div class="clearfix" name="so_total_summary">
+                        <div id="total" class="row" name="total">
+                            <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                                <table class="table table-sm">
+                                    <tr class="border-black o_subtotal" style="" t-if="doc.material_lines">
+                                        <td name="td_amount_untaxed_label"><strong>Meterial Total</strong></td>
+                                        <td name="td_amount_untaxed" class="text-right">
+                                            <span t-field="doc.material_sub_total"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-black o_subtotal" style="" t-if="doc.equipment_lines">
+                                        <td name="td_amount_untaxed_label"><strong>Equipment Total</strong></td>
+                                        <td name="td_amount_untaxed" class="text-right">
+                                            <span t-field="doc.equipment_sub_total"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-black o_subtotal" style="" t-if="doc.labour_lines">
+                                        <td name="td_amount_untaxed_label"><strong>Labour Total</strong></td>
+                                        <td name="td_amount_untaxed" class="text-right">
+                                            <span t-field="doc.labour_sub_total"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-black o_subtotal" style="" t-if="doc.sub_contract_ids">
+                                        <td name="td_amount_untaxed_label"><strong>Contract Total</strong></td>
+                                        <td name="td_amount_untaxed" class="text-right">
+                                            <span t-field="doc.contract_est_total"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-black o_total">
+                                        <td name="td_amount_total_label"><strong>Total</strong></td>
+                                        <td name="td_amount_total" class="text-right">
+                                            <span t-field="doc.amount_total"
+                                                  t-options='{"widget": "monetary", "display_currency": doc.company_id.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="oe_structure"/>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_joborder">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="Jobs.report_joborder_document" t-lang="doc.partner_id.lang"/>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

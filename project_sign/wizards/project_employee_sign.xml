@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="authorize_net_payment_demo" model="ir.ui.view">
+            <field name="name">project.employee.sign.wizard</field>
+            <field name="model">project.employee.sign</field>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <form string="Sign">
+                        <separator string='Agreement'/>
+                        <field name="proposal_file" mode="kanban" readonly="True"/>
+                    <footer>
+                        <button name="send_request" string="Design Template" type="object" class="btn btn-primary"/>
+                        <button name="cancel" string="Cancel" special="cancel" class="btn bg-dangery"/>
+                    </footer>
+               
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

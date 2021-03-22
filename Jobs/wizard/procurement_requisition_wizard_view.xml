@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="purchase_requisition_form_view" model="ir.ui.view">
+            <field name="name">Purchase Requisition Form</field>
+            <field name="model">procurement.requisition.wizard</field>
+            <field name="arch" type="xml">
+                <form string="ModelTitle">
+                    <sheet>
+                        <div class="oe_title">
+                            <field name="procurement_selection" widget="radio" options="{'horizontal': true}"
+                                   invisible="not context.get('single_order')"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="job_order_id" invisible="True"/>
+                                <field name="line_id" invisible="1"/>
+                                <div>
+                                    <span attrs="{'invisible': [('procurement_selection', '=', 'purchase')]}"
+                                          style="font-size: 13px; font-weight: bold;">Deliver To
+                                    </span>
+                                    <span attrs="{'invisible': [('procurement_selection', '=', 'transfer')]}"
+                                          style="font-size: 13px; font-weight: bold;">Operation
+                                    </span>
+
+                                </div>
+                                <div>
+                                    <field name="picking_type_id" required="True" nolabel="1"/>
+                                </div>
+
+                            </group>
+                            <separator/>
+                            <group string="Transfer" attrs="{'invisible':[('procurement_selection', '=', 'purchase')]}"
+                                   col="4" colspan="2">
+                                <field name="code" invisible="1"/>
+                                <div>
+                                    <span invisible="not context.get('material')"
+                                          style="font-size: 13px; font-weight: bold;">Material
+                                    </span>
+                                    <span invisible="not context.get('equipment')"
+                                          style="font-size: 13px; font-weight: bold;">Equipment
+                                    </span>
+
+                                </div>
+                                <div>
+                                    <field name="product_id" readonly="True" nolabel="1"
+                                           attrs="{'required':[('procurement_selection', '=', 'transfer')]}"/>
+                                </div>
+                                <label for="move_qty"/>
+                                <div class="o_row">
+                                    <field name="in_stock" attrs="{'invisible': [('code', '!=', 'outgoing')]}"/>
+                                    <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon"
+                                       title="Arrow" attrs="{'invisible': [('code', '!=', 'outgoing')]}"/>
+                                    <field name="move_qty"/>
+                                </div>
+
+                            </group>
+                            <separator string="Order Lines" colspan="4"
+                                       attrs="{'invisible':[('procurement_selection', '=', 'transfer')]}"/>
+                            <field name="material_line_ids"
+                                   attrs="{'invisible':[('procurement_selection', '=', 'transfer')]}">
+                                <tree editable="bottom" create="false">
+                                    <field name="product_id"/>
+                                    <field name="partner_id"/>
+                                    <field name="supplier_delay" string="Lead Time" readonly="True"/>
+                                    <field name="order_qty" string="Order Qty" readonly="True"/>
+                                    <field name="purchase_qty" string="Purchase Qty"
+                                           attrs="{'required':[('parent.procurement_selection', '=', 'purchase')]}"
+                                    />
+                                    <field name="unit_cost" string="Cost"/>
+                                    <field name="amount_total" string="Sub Total"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="create_purchase_order" type="object" string="Create Order" class="btn-primary"
+                                attrs="{'invisible':[('procurement_selection', '=', 'transfer')]}"/>
+                        <button name="action_confirm" type="object" string="Transfer" class="btn-primary"
+                                attrs="{'invisible':[('procurement_selection', '=', 'purchase')]}"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window
+                name="Procurement Operations"
+                id="action_purchase_requisition"
+                res_model="procurement.requisition.wizard"
+                view_mode="form"
+                target="new"
+        />
+
+    </data>
+</odoo>

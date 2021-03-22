@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+         <record id="job_plan" model="ir.ui.view">
+            <field name="name">Job Plan</field>
+            <field name="type">qweb</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <div class="o_form_view o_form_readonly o_project_plan">
+                    <div class="o_form_sheet_bg">
+                        <div class="container o_form_sheet">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <ul class="list-group">
+                                        <t t-foreach="stat_buttons" t-as="stat_button">
+                                            <a type="action"
+                                               t-att="stat_button['action']"
+                                            >
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div t-attf-class="fa fa-fw o_button_icon #{stat_button['icon']}"
+                                                         role="img" aria-label="Statistics"
+                                                         t-attf-title="#{stat_button['name']}"/>
+                                                    <span t-esc="stat_button['name']"/>
+                                                    <span class="badge badge-success badge-pill" t-if="stat_button.get('record')" t-esc="stat_button['record']"/>
+                                                    <span t-if="not stat_button.get('count') and not stat_button.get('record')" style="padding-right: 23px;"/>
+                                                    <span class="badge badge-info badge-pill" t-if="stat_button.get('count')" t-esc="stat_button['count']"/>
+                                                </li>
+                                            </a>
+                                        </t>
+                                    </ul>
+                                </div>
+                                <div class="col">
+                                    <div class="table-responsive">
+                                      <t t-if="budget.get('target')">
+                                        <div class="float-right o_job_plan_badge">
+                                            <span class="badge badge-pill o_progress_budget_amount">
+                                                  Actual Amount
+                                            </span>
+                                            <span class="badge badge-pill o_progress_budget_excess">
+                                                  Excess Amount
+                                            </span>
+                                        </div>
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th></th>
+                                                    <th colspan="5" id="table_plan_title" class="o_right_bordered"><h3>Budget Report</h3></th>
+                                                    <th colspan="2" id="table_plan_total"></th>
+                                                </tr>
+                                                 <tr>
+                                                    <th class='o_right_bordered'>
+                                                        <span>Reference</span>
+                                                    </th>
+                                                    <th class='o_right_bordered'>
+                                                        <span>Budget</span>
+                                                    </th>
+                                                    <th class='o_right_bordered'>
+                                                        <span>Budget Tracking</span>
+                                                    </th>
+                                                    <th class='o_right_bordered'>
+                                                        <span>Total Amount</span>
+                                                    </th>
+                                            </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr>
+                                                  <td style="width: 260px;">
+                                                      <t t-esc="budget['ref']"/>
+                                                  </td>
+                                                  <td  style="width: 20px;">
+                                                      <t t-esc="budget['target']"/>
+                                                  </td>
+                                                  <td style="width: 391px;">
+                                                      <div class="progress">
+                                                      <t t-call="Jobs.progresstrack_bar">
+                                                          <t t-set="label"><t t-esc="budget['ref']"></t></t>
+                                                          <t t-set="key" t-translation="off"><t t-esc="budget['boot_budget']"></t></t>
+                                                          <t t-set="current" t-value="budget['current']"/>
+                                                          <t t-set="target" t-value="budget['target']"/>
+                                                          <t t-set="edit" t-value="budget['record_edit']"/>
+                                                      </t>
+                                                      <t t-call="Jobs.progresstrack_bar" t-if="budget.get('excess')">
+                                                          <t t-set="label"><t t-esc="budget['ref']"></t></t>
+                                                          <t t-set="key" t-translation="off"><t t-esc="budget['boot_excess']"></t></t>
+                                                          <t t-set="current" t-value="budget['ex_amount']"/>
+                                                          <t t-set="target" t-value="budget['ex_amount']"/>
+                                                          <t t-set="edit" t-value="budget['record_edit']"/>
+                                                      </t>
+                                                  </div>
+                                                  </td>
+                                                  <td style="width: 10px;">
+                                                          <t t-esc="budget['current'] + budget['ex_amount']"/>
+                                                  </td>
+                                              </tr>
+                                            </tbody>
+                                        </table>
+                                      </t>
+                                        <div class="float-right o_job_plan_badge">
+                                            <span class="badge badge-pill o_progress_sale_amount">
+                                                  Ordered Amount
+                                            </span>
+                                            <span class="badge badge-pill o_progress_invoice_amount">
+                                                  Invoiced Amount
+                                            </span>
+                                             <span class="badge badge-pill o_progress_invoice_residual">
+                                                   Invoice Paid
+                                            </span>
+                                            <span class="badge badge-pill o_progress_bill_amount">
+                                                  Billed Amount
+                                            </span>
+                                            <span class="badge badge-pill o_progress_bill_residual">
+                                                  Bill Paid
+                                            </span>
+                                        </div>
+                                        <table class="table">
+                                            <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th colspan="5" id="table_plan_title" class="o_right_bordered"><h3>Accounting Report</h3></th>
+                                                <th colspan="2" id="table_plan_total"></th>
+                                            </tr>
+                                            <tr>
+                                                <th class='o_right_bordered'>
+                                                    <span>Entity</span>
+                                                </th>
+                                                <th class='o_right_bordered'>
+                                                    <span>Amount</span>
+                                                </th>
+                                                <th class='o_right_bordered'>
+                                                    <span>Amount Tracking</span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                            <tbody>
+                                                <t t-foreach="status" t-as="track">
+                                                    <tr>
+                                                        <td style="width: 260px;">
+                                                            <t t-esc="track['name']"/>
+                                                        </td>
+                                                        <td style="width: 20px;">
+                                                            <t t-esc="track['total']"/>
+                                                        </td>
+                                                        <td style="width: 391px;">
+                                                            <div class="progress">
+                                                                <t t-set="title"><t t-esc="track['label']"/>: <t t-esc="track['amount']"/></t>
+                                                                <a t-attf-class="progress-bar {{track['boot_amount']}}"
+                                                                   t-attf-style="width: {{track['amount'] / track['total'] * 100 if track['total'] != 0 else 0}}%"
+                                                                   type="action"
+                                                                   t-att-data-model="track['model']"
+                                                                   t-att-data-domain="json.dumps(track['domain'])"
+                                                                   t-att-data-context="json.dumps({'create': False})"
+                                                                >
+                                                                    <span t-att-title="title"
+                                                                          style="font-size: 0px; width: 100%; height: 100%;">
+                                                                        <t t-esc="track['label']"/>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                            <div class="progress" t-if="track.get('boot_residual')">
+                                                                <t t-set="title"><t t-esc="track['payment_label']"/>: <t t-esc="track['amount_paid']"/></t>
+                                                                <a t-attf-class="progress-bar {{track['boot_residual']}}"
+                                                                   t-attf-style="width: {{100 - track['residual']/ track['total'] * 100 if track['total'] != 0 else 0}}%"
+                                                                   type="action"
+                                                                   t-att-data-model="track['model_residual']"
+                                                                   t-att-data-domain="json.dumps(track['domain_residual'])"
+                                                                   t-att-data-context="json.dumps({'create': False})"
+                                                                >
+                                                                    <span t-att-title="title"
+                                                                          style="font-size: 0px; width: 100%; height: 100%;">
+                                                                        <t t-esc="track['amount_paid']"/>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                        <div class="float-right o_job_plan_badge">
+                                            <span class="badge badge-pill o_progress_purchase_qty">
+                                                 Purchase Quantity
+                                            </span>
+                                            <span class="badge badge-pill o_progress_bill_internal_qty">
+                                                Internal Transfer Quantity
+                                            </span>
+                                            <span class="badge badge-pill o_specia_line">
+                                                Extra Quantity
+                                            </span>
+                                        </div>
+                                        <table class="table">
+                                          <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th colspan="5" id="table_plan_title" class="o_right_bordered"><h3>Stock Report</h3></th>
+                                                <th colspan="2" id="table_plan_total"></th>
+                                            </tr>
+                                            <tr>
+                                                <th class='o_right_bordered'>
+                                                    <span>Product</span>
+                                                </th>
+                                                <th class='o_right_bordered'>
+                                                    <span>Estimated Qty</span>
+                                                </th>
+                                                <th class='o_right_bordered'>
+                                                    <span>Qty Tracking</span>
+                                                </th>
+                                                <th class='o_right_bordered'>
+                                                    <span>Total Qty</span>
+                                                </th>
+                                            </tr>
+                                          </thead>
+                                            <tbody>
+                                                <t t-foreach="stock_status" t-as="track">
+                                                    <tr t-attf-style="background-color: {{ '#ffebe6' if track['special'] else '#ffffff'}}">
+                                                        <td style="width: 260px;">
+                                                            <t t-esc="track['product']"/>
+                                                        </td>
+                                                        <td style="width: 10px;">
+                                                            <t t-esc="track['qty']"/>
+                                                        </td>
+                                                        <td style="width: 391px;">
+                                                            <div class="progress">
+                                                                <t t-call="Jobs.progresstrack_bar">
+                                                                    <t t-set="label"><t t-esc="track['product']"></t></t>
+                                                                    <t t-set="key" t-translation="off"><t t-esc="track['boot_pqty']"></t></t>
+                                                                    <t t-set="current" t-value="track['purchase_qty']"/>
+                                                                    <t t-set="target" t-value="track['qty']"/>
+                                                                    <t t-set="model" t-value="track['purchase_model']"/>
+                                                                    <t t-set="domain" t-value="track['purchase_domain']"/>
+                                                                </t>
+                                                                <t t-call="Jobs.progresstrack_bar">
+                                                                    <t t-set="label"><t t-esc="track['product']"></t></t>
+                                                                    <t t-set="key" t-translation="off"><t t-esc="track['boot_iqty']"></t></t>
+                                                                    <t t-set="current" t-value="track['internal_qty']"/>
+                                                                    <t t-set="target" t-value="track['qty']"/>
+                                                                    <t t-set="model" t-value="track['stock_model']"/>
+                                                                    <t t-set="domain" t-value="track['stock_domain']"/>
+                                                                </t>
+                                                            </div>
+                                                        </td>
+                                                        <td style="width: 10px;">
+                                                            <t t-esc="track['actual_qty']"/>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </field>
+        </record>
+
+        <template id="progresstrack_bar" name="project overview progressbar segments">
+            <t t-if="target">
+              <t t-set="title"><t t-esc="label"/>: <t t-esc="current"/></t>
+              <a t-attf-class="progress-bar {{key}}" t-if="not edit"
+                 t-attf-style="width: {{current / target * 100}}%"
+                 type="action"
+                 t-att-data-model="model"
+                 t-att-data-domain="json.dumps(domain)">
+                <span t-att-title="title"
+                      style="font-size: 0px; width: 100%; height: 100%;">
+                      <t t-esc="label" />
+                </span>
+              </a>
+              <a t-attf-class="progress-bar {{key}}" t-if="edit"
+                 t-attf-style="width: {{current / target * 100}}%"
+                 type="action"
+                 t-att="edit">
+                <span t-att-title="title" style="font-size: 0px; width: 100%; height: 100%;">
+                           <t t-esc="label" />
+                </span>
+              </a>
+            </t>
+      </template>
+
+        <record id="job_plan_qweb_view" model="ir.actions.act_window">
+            <field name="name">Overview</field>
+            <field name="res_model">job.order</field>
+            <field name="view_mode">qweb</field>
+        </record>
+
+    </data>
+</odoo>

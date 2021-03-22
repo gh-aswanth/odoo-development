@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_sale_line_tax" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale.line.tax</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="10"/>
+        <field name="inherit_id" ref="account.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='account']/div[hasclass('o_settings_container')][2]/div[hasclass('o_setting_box')][2]" position="after">
+                             <div class="col-xs-12 col-md-6 o_setting_box">
+                                <div class="o_setting_left_pane">
+                                    <field name="so_tax_cloud"/>
+                                </div>
+                                    <div class="o_setting_right_pane">
+                                        <span class="o_form_label">Tax Cloud Login</span>
+                                            <div class="text-muted">
+                                                Default taxes Tax Cloud Information
+                                            </div>
+                                        <div class="content-group" attrs="{'invisible': [('so_tax_cloud', '=', False)]}">
+                                            <div class="row mt16">
+                                                <label string="API ID" for="tax_cloud_id" class="col-md-4 o_light_label"/>
+                                                <field name="tax_cloud_id"/>
+                                            </div>
+                                            <div class="row">
+                                                <label string="API KEY" for="tax_cloud_key" class="col-md-4 o_light_label"/>
+                                                <field name="tax_cloud_key"/>
+                                                <button type="object" name="sync_taxcloud_category" class="btn btn-link">
+                                                <i role="img" class="fa fa-refresh fa-fw"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="product_product_extnd_form_view2">
+        <field name="name">product_extended.product.form.view</field>
+        <field name="model">product.product</field>
+        <field name="priority">3</field>
+        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="arch" type="xml">
+           <field name='taxes_id' position="after">
+                            <field name="taxcloud_tic_ctg"/>          
+               </field>
+        </field>
+    </record> -->
+<record model="ir.ui.view" id="product_template_extnd_form_view2">
+        <field name="name">product_template_extended.product.form.view</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref= "product.product_template_only_form_view" />
+        <field name="arch" type="xml">
+            <field name='taxes_id' position="after">
+                            <field name="taxcloud_tic_ctg"/>          
+               </field>
+            
+        </field>
+    </record>
+    
+    <record id="account_position_taxcloud_odoo_api_inherit_from_view" model="ir.ui.view">
+        <field name="name">account.fiscal.position.form.inherit</field>
+        <field name="model">account.fiscal.position</field>
+        <field name="inherit_id" ref="account.view_account_position_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//widget[@name='web_ribbon']" position="after">
+                <field name="is_taxcloud_configured" invisible="1"/>
+                <div class="alert alert-info" role="alert"
+                    attrs="{'invisible': ['|', ('is_taxcloud_configured', '=', True), ('is_taxcloud', '=', False)]}">
+                    Please enter your Taxcloud credentials to compute tax rates automatically.
+                    <a class="alert-link" href="/web#action=account.action_account_config" role="button">Go to Settings.</a>
+                </div>
+                <div class="alert alert-info" role="alert"
+                    attrs="{'invisible': ['|', ('auto_apply', '=', True), ('is_taxcloud', '=', False)]}">
+                    Enable <b>Detect Automatically</b> to automatically use TaxCloud when selling to American customers.
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_taxcloud"/>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
+
+
+

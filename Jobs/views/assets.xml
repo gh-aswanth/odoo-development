@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <template id="assets_frontend" inherit_id="web.assets_backend" name="table style">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/Jobs/static/src/js/list_editable_renderer.js"></script>
+            <link rel="stylesheet" type="text/scss" href="/Jobs/static/src/scss/job_overview.scss"/>
+        </xpath>
+    </template>
+</odoo>

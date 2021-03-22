@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="email_template_job_order" model="mail.template">
+            <field name="name">Job Order: Send by email</field>
+            <field name="model_id" ref="Jobs.model_job_order"/>
+            <field name="subject">${object.company_id.name}
+                ${object.state in ('draft', 'sent') and 'Quotation' or 'Order'} (Ref ${object.name or 'n/a' })</field>
+            <field name="email_from">${(object.user_id.email_formatted or user.email_formatted) | safe}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        % set doc_name = 'Estimation' if object.state in ('draft', 'sent') else 'Job Order'
+                        Hello,
+                        <br/><br/>
+                        Your
+                        % if object.state in ('draft', 'sent'):
+                        ${doc_name} for <strong>${object.name}</strong>
+                        amounting in <strong>
+                        ${format_amount(object.amount_total, object.company_id.currency_id)}</strong> is ready for
+                        approval.
+                        % else:
+                        ${doc_name} <strong>${object.name}</strong>
+                        amounting in <strong>
+                        ${format_amount(object.amount_total, object.company_id.currency_id)}</strong> is ready for
+                        review.
+                        % endif
+                        <br/><br/>
+                        Do not hesitate to contact us if you have any questions.
+                        <br/>
+                    </p>
+                </div>
+            </field>
+            <field name="report_template" ref="Jobs.action_report_joborder"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="report_name">${(object.name or '').replace('/','_')}</field>
+            <field name="lang">${object.partner_id.lang}</field>
+            <field name="user_signature" eval="False"/>
+            <field name="auto_delete" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

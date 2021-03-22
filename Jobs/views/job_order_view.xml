@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="job_order_view_form" model="ir.ui.view">
+            <field name="name">job.order.form.view</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="print_document" type="object"
+                                string="Print Document" class="oe_highlight"
+                                attrs="{'invisible': [('state', 'in', ['draft', 'waiting'])]}"/>
+                        <button name="set_to_waiting_approval" type="object"
+                                string="Submit Estimation" class="oe_highlight"
+                                attrs="{'invisible': [('state', 'not in', ['draft'])]}"/>
+                        <button name="set_to_approved" type="object"
+                                string="Verify" class="oe_highlight"
+                                attrs="{'invisible': [('state', 'not in', ['waiting'])]}"/>
+                        <button name="send_to_customer" type="object"
+                                string="Send to Customer" class="oe_highlight"
+                                attrs="{'invisible': [('state', 'not in', ['approved'])]}"/>
+                        <button name="action_create_order" type="object"
+                                string="Confirm" class="oe_highlight"
+                                attrs="{'invisible': [('state', 'not in', ['approved', 'sent'])]}"/>
+                        <button name="%(Jobs.action_purchase_requisition)d" type="action"
+                                string="Purchase Requisition" class="oe_highlight"
+                                context="{'default_job_order_id':active_id, 'mass_order': True}"
+                                attrs="{'invisible': [('state', 'not in', ['job', 'inprogress'])]}"/>
+                        <button name="move_to_provision" type="object"
+                                string="Start Work" class="btn-success oe_highlight"
+                                attrs="{'invisible': [('state', 'not in', ['job'])]}"/>
+                        <button name="make_as_done" type="object"
+                                string="Done" class="btn-success oe_highlight"
+                                attrs="{'invisible': [('state', 'not in', ['inprogress'])]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,approved,job,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_records"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-users"
+                                    attrs="{'invisible':[('sale_count', '=', 0)]}"
+                                    context="{'view_sale_order':True}"
+                            >
+                                <field name="sale_count" widget="statinfo" string="Sale Orders"/>
+                            </button>
+                            <button name="action_view_records"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-book"
+                                    attrs="{'invisible':[('invoice_count', '=', 0)]}"
+                                    context="{'view_invoice':True}"
+                            >
+                                <field name="invoice_count" widget="statinfo" string="Invoice"/>
+                            </button>
+                            <button name="action_view_records"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-shopping-cart"
+                                    attrs="{'invisible':[('purchase_count', '=', 0)]}"
+                                    context="{'view_purchase_order':True}"
+                            >
+                                <field name="purchase_count" widget="statinfo" string="Purchase Orders"/>
+                            </button>
+                            <button name="action_view_records"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-dollar"
+                                    attrs="{'invisible':[('bill_count', '=', 0)]}"
+                                    context="{'view_bill':True}"
+                            >
+                                <field name="bill_count" widget="statinfo" string="Bills"/>
+                            </button>
+                            <button name="action_view_records"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-truck"
+                                    attrs="{'invisible':[('picking_out_count', '=', 0)]}"
+                                    context="{'view_delivery_order':True}"
+                            >
+                                <field name="picking_out_count" widget="statinfo" string="Delivery"/>
+                            </button>
+                            <button name="action_view_records"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-truck"
+                                    attrs="{'invisible':[('picking_in_count', '=', 0)]}"
+                                    context="{'view_receipt':True}"
+                            >
+                                <field name="picking_in_count" widget="statinfo" string="Receipt"/>
+                            </button>
+                            <button type="object"
+                                    name="action_view_stock_move"
+                                    class="oe_stat_button" icon="fa-exchange"
+                                    attrs="{'invisible':[('stock_move_count', '=', 0)]}"
+                            >
+                                <field name="stock_move_count" widget="statinfo" string="Stock Move"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                            <field name="customer_type" required="1" widget="radio" options="{'horizontal': true}"
+                                   attrs="{'invisible': [('state','not in', ['draft'])]}"/>
+                        </div>
+                        <separator/>
+                        <group>
+                            <group>
+                                <field name="partner_id"
+                                       attrs="{'invisible':[('customer_type', '=', 'new')],
+                                       'readonly':[('state', 'not in', ['draft', 'waiting'])]}"
+                                       domain="[('type', '=', 'contact'),('parent_id','=',False)]"/>
+                                <field name="partner_contact_id"
+                                       context="{'default_parent_id': partner_id}"
+                                       domain="[('type', '=', 'contact'), ('parent_id', '=', partner_id)]"
+                                       attrs="{'invisible':[('customer_type', '=', 'new')],
+                                       'readonly':[('state', 'not in', ['draft', 'waiting'])]}"/>
+                                <label for="partner_name" string="Customer Name"
+                                       attrs="{'invisible':[('customer_type', '=', 'existing')]}"/>
+                                <div class="o_row" attrs="{'invisible':[('customer_type', '=', 'existing')]}">
+                                    <field name="contact_title" placeholder="Title" domain="[]"
+                                           options="{&quot;no_open&quot;: True}"/>
+                                    <field name="partner_name"
+                                           attrs="{'required':[('customer_type', '=', 'new')]}"
+                                    />
+                                </div>
+                                <label for="street" string="Address"
+                                       attrs="{'invisible':[('customer_type', '=', 'existing')]}"/>
+                                <div class="o_address_format"
+                                     attrs="{'invisible':[('customer_type', '=', 'existing')]}">
+                                    <field name="street" placeholder="Street..." class="o_address_street"/>
+                                    <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                    <field name="city" placeholder="City" class="o_address_city"/>
+                                    <field name="state_id" class="o_address_state" placeholder="State"
+                                           options="{&quot;no_open&quot;: True}"/>
+                                    <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                    <field name="country_id" placeholder="Country" class="o_address_country"
+                                           options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                                </div>
+                                <field name="website" widget="url" placeholder="e.g. https://www.odoo.com"
+                                       attrs="{'invisible':[('customer_type', '=', 'existing')]}"/>
+                                <field name="customer_email" placeholder="Customer Email..."
+                                       attrs="{'invisible':[('customer_type', '=', 'existing')],
+                                       'required':[('customer_type', '=', 'new')]}"/>
+                                <field name="customer_phone" widget="phone" options="{'enable_sms': True}"
+                                       attrs="{'invisible':[('customer_type', '=', 'existing')]}"/>
+                            </group>
+                            <group>
+                                <field name="company_id" invisible="1"/>
+                                <field name="company_currency_id" invisible="1"/>
+                                <field name="analytic_account_id"
+                                       attrs="{'invisible':[('analytic_account_id', '=', False)]}"
+                                       string="Project"/>
+                                <field name="date_create" readonly="True"
+                                       attrs="{'invisible': [('date_order', '!=', False)]}"/>
+                                <label for="schedule_date" string="Schedule Date"/>
+                                <div class="o_row">
+                                    <field name="schedule_date"
+                                           attrs="{'readonly':[('state', 'not in', ['draft','waiting'])]}"/>
+                                    <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon"
+                                       title="Arrow"/>
+                                    <field name="close_date"
+                                           attrs="{'readonly':[('state', 'not in', ['draft','waiting'])]}"/>
+                                </div>
+                                <field name="date_order"
+                                       attrs="{'invisible': [('state', 'in', ['draft','waiting','sent', 'approved'])]}"
+                                       readonly="1"/>
+                                <field name="user_id" string="Estimator"
+                                       attrs="{'readonly':[('state', 'not in', ['draft','waiting'])]}"/>
+                            </group>
+
+                        </group>
+                        <notebook>
+                            <page string="Materials" groups="Jobs.group_show_materials">
+                                <field name="material_lines" widget="section_and_note_one2many" mode="tree"
+                                       context="{'default_is_material':True}"
+                                       domain="[('is_material', '=', True)]"
+                                       attrs="{'readonly':[('state', 'in', ['approved', 'done', 'cancel'])]}"
+                                       force_save="1">
+                                    <tree editable="bottom"
+                                          decoration-danger="order_qty == 0 and parent.state not in ('draft', 'waiting', 'approved', 'sent')">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="is_material" invisible="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="product_id" domain="[('boq_type', '=', 'material')]"
+                                               context="{'default_boq_type':'material'}" required="True"/>
+                                        <field name="name" widget="section_and_note_text" required="True"/>
+                                        <field name="unit_cost" readonly="True" force_save="1"/>
+                                        <field name="unit_price"/>
+                                        <field name="order_qty" string="Qty"
+                                               attrs="{'readonly':[('parent.state','in',['job','inprogress','done'])]}"/>
+                                        <field name="amount_total" string="SubTotal" sum="Total" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                        <field name="margin" sum="Total Margin" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Equipments" groups="Jobs.group_show_equipments">
+                                <field name="equipment_lines" widget="section_and_note_one2many" mode="tree"
+                                       domain="[('is_equipment', '=', True)]"
+                                       context="{'default_is_equipment':True}"
+                                       attrs="{'readonly':[('state', 'in', ['approved', 'done', 'cancel'])]}"
+                                       force_save="1">
+                                    <tree editable="bottom"
+                                          decoration-danger="order_qty == 0 and parent.state not in ('draft', 'waiting', 'approved', 'sent')">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="is_equipment" invisible="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="product_id" domain="[('boq_type', '=', 'equipment')]"
+                                               context="{'default_boq_type':'equipment'}" required="True"
+                                               string="Equipment"/>
+                                        <field name="name" widget="section_and_note_text" required="True"/>
+                                        <field name="unit_cost" readonly="True" force_save="1"/>
+                                        <field name="unit_price"/>
+                                        <field name="order_qty" string="Qty"
+                                               attrs="{'readonly':[('parent.state','in',['job','inprogress','done'])]}"/>
+                                        <field name="amount_total" string="SubTotal" sum="Total" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                        <field name="margin" sum="Total Margin" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Labours" groups="Jobs.group_show_labours">
+                                <field name="labour_lines" widget="section_and_note_one2many" mode="tree"
+                                       context="{'default_is_labour':True}"
+                                       domain="[('is_labour', '=', True)]"
+                                       attrs="{'readonly':[('state', 'in', ['approved', 'done', 'cancel'])]}">
+                                    <tree editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="is_labour" invisible="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="product_id" domain="[('boq_type', '=', 'labour')]"
+                                               context="{'default_boq_type':'labour'}" required="True"
+                                               string="Service"/>
+                                        <field name="name" widget="section_and_note_text"/>
+                                        <field name="unit_price" string="Rate"/>
+                                        <field name="order_qty" string="Qty"/>
+                                        <field name="amount_total" string="SubTotal" sum="Total" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Sub-Contracts" groups="Jobs.group_show_sub_contracts">
+                                <field name="sub_contract_ids" widget="section_and_note_one2many" mode="tree">
+                                    <tree editable="bottom">
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="vendor_id"/>
+                                        <field name="name" required="True"/>
+                                        <field name="cost_price" string="Cost" sum="Cost Total"/>
+                                        <field name="estimated_price" string="Price" sum="Estimate Total"/>
+                                        <field name="margin" widget="monetary"
+                                               options="{'currency_field': 'currency_id'}"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Other Info">
+                                <group>
+                                    <group attrs="{'invisible': [('customer_type', '=', 'existing')]}">
+                                        <label for="contact_name"/>
+                                        <div class="o_row">
+                                            <field name="contact_name"/>
+                                            <field name="title" placeholder="Title" domain="[]"
+                                                   options="{&quot;no_open&quot;: True}"/>
+                                        </div>
+                                        <field name="contact_email" placeholder="Contact Email..."/>
+                                        <field name="function"/>
+                                        <field name="contact_phone" widget="phone" options="{'enable_sms': True}"/>
+                                    </group>
+                                    <group>
+                                        <field name="budget" widget="monetary"
+                                               options="{'currency_field': 'company_currency_id'}"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                        <group name="note_group" col="6">
+                            <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                                <field name="material_sub_total" widget="monetary"
+                                       options="{'currency_field': 'company_currency_id'}"
+                                       groups="Jobs.group_show_materials"/>
+                                <field name="equipment_sub_total" widget="monetary"
+                                       options="{'currency_field': 'company_currency_id'}"
+                                       groups="Jobs.group_show_equipments"/>
+                                <field name="labour_sub_total" widget="monetary"
+                                       options="{'currency_field': 'company_currency_id'}"
+                                       groups="Jobs.group_show_labours"/>
+                                <field name="contract_est_total" widget="monetary"
+                                       options="{'currency_field': 'company_currency_id'}"
+                                       groups="Jobs.group_show_sub_contracts"/>
+                                <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                    <label for="amount_total"/>
+                                </div>
+                                <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator"
+                                       widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                            </group>
+                            <div class="oe_clear"/>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="job_order_view_tree" model="ir.ui.view">
+            <field name="name">job_order_view_tree</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <tree string="job_order_tree">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="partner_contact_id"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="amount_total" sum="Total"/>
+                </tree>
+            </field>
+        </record>
+        <record id="job_order_view_kanban" model="ir.ui.view">
+            <field name="name">job.order.kanban</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_content oe_kanban_global_click o_kanban_get_form">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h1><field name="name" string="Project Name"/></h1>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-8">
+                                        <field name="partner_id" string="Contact"/>
+                                    </div>
+                                </div>
+                                <a name="action_view_timesheet_plan" type="object"
+                                   class="o_job_kanban_box">
+                                    <div>
+                                        <span class="o_label">Overview</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+          <record id="view_job_order_filter" model="ir.ui.view"><field name="name">job.order.select</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <search string="Search Project">
+                    <field name="name" string="Job"/>
+                </search>
+            </field>
+        </record>
+        <record id="job_order_action" model="ir.actions.act_window">
+            <field name="name">Job Orders</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.order</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="domain">[('state', 'in', ['approved', 'sent', 'job', 'inprogress', 'done'])]</field>
+            <field name="context">{'create': False}</field>
+            <field name="search_view_id" ref="view_job_order_filter"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new job order here !!
+                </p>
+            </field>
+        </record>
+        <record id="job_order_primary_view_form" model="ir.ui.view">
+            <field name="name">job.order.primary.form</field>
+            <field name="model">job.order</field>
+            <field name="inherit_id" ref="Jobs.job_order_view_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='material_lines']/tree/field[@name='margin']" position="after">
+                    <button name="%(Jobs.action_purchase_requisition)d"
+                            type="action" icon="fa-truck" string="Procurement"
+                            context="{'default_line_id':active_id, 'single_order': True, 'material':True}"
+                            class="job_tree_button"
+                            attrs="{'invisible': [('parent.state', 'not in', ('job', 'inprogress', 'done'))]}"/>
+                </xpath>
+                <xpath expr="//field[@name='material_lines']/tree/field[@name='order_qty']" position="after">
+                    <field name="purchase_qty" optional="show"/>
+                    <field name="purchase_amount_total" string="Purchase SubTotal" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='equipment_lines']/tree/field[@name='margin']" position="after">
+                    <button name="%(Jobs.action_purchase_requisition)d"
+                            type="action" icon="fa-truck" string="Procurement"
+                            class="job_tree_button"
+                            context="{'single_order': True, 'equipment':True}"
+                            attrs="{'invisible': [('parent.state', 'not in', ('job', 'inprogress', 'done'))]}"/>
+                </xpath>
+                <xpath expr="//field[@name='equipment_lines']/tree/field[@name='order_qty']" position="after">
+                    <field name="purchase_qty" optional="show"/>
+                    <field name="purchase_amount_total" string="Purchase SubTotal" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='equipment_lines']/tree/field[@name='name']" position="after">
+                    <field name="is_rental" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='equipment_lines']/tree/field[@name='order_qty']" position="before">
+                    <field name="rule_type" attrs="{'required':[('is_rental', '=', True)]}" optional="show"/>
+                </xpath>
+                <xpath expr="//field[@name='sub_contract_ids']/tree/field[@name='margin']" position="after">
+                    <button name="create_vendor_bill"
+                            type="object" icon="fa-book" string="Create Bill"
+                            class="job_tree_button"
+                            attrs="{'invisible': [('parent.state','not in', ['job', 'inprogress', 'done'])]}"/>
+                </xpath>
+                <xpath expr="//group/group[2]/field[@name='budget']" position="replace"/>
+                <xpath expr="//group/group[2]/field[@name='company_currency_id']" position="before">
+                    <label for="job_start_date" string="Time Line"
+                           attrs="{'invisible': [('job_start_date', '=', False)]}"/>
+                    <div class="o_row">
+                        <field name="job_start_date" widget="daterange"
+                               options="{'related_end_date': 'job_end_date'}"
+                               attrs="{'invisible': [('job_start_date', '=', False)]}" readonly="1"/>
+                        <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon"
+                           title="Arrow" attrs="{'invisible': [('job_end_date', '=', False)]}"/>
+                        <field name="job_end_date" widget="daterange"
+                               options="{'related_end_date': 'job_start_date'}"
+                               attrs="{'invisible': [('job_end_date', '=', False)]}" readonly="1"/>
+                    </div>
+                </xpath>
+                <xpath expr="//notebook" position="before">
+                    <group>
+                        <div class="row" style="padding-left: 200px;">
+                            <div class="col-3">
+                                <field name="ordered_amount"
+                                       widget="gauge"
+                                       options="{'max_field':'amount_total', 'style': 'width:150px; height: 150px;cursor:pointer;'}"/>
+                            </div>
+                            <div class="col-3">
+                                <field name="invoiced_amount"
+                                       widget="gauge"
+                                       options="{'max_field':'amount_total', 'style': 'width:150px; height: 150px;cursor:pointer;'}"/>
+                            </div>
+                            <div class="col-3">
+                                <field name="paid_amount"
+                                       widget="gauge"
+                                       options="{'max_field':'amount_total', 'style': 'width:150px; height: 150px;cursor:pointer;'}"/>
+                            </div>
+                        </div>
+                    </group>
+                </xpath>
+                <xpath expr="//form/sheet/notebook/page[5]/group/group[1]" position="after">
+                    <group>
+                        <field name="budget" widget="monetary"
+                               options="{'currency_field': 'company_currency_id'}"
+                        />
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_window_job_order_primary_view_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="Jobs.job_order_view_kanban"/>
+            <field name="act_window_id" ref="Jobs.job_order_action"/>
+        </record>
+
+        <record model="ir.actions.act_window.view" id="act_window_job_order_primary_view_form">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="Jobs.job_order_primary_view_form"/>
+            <field name="act_window_id" ref="Jobs.job_order_action"/>
+        </record>
+
+        <record id="job_estimation_action" model="ir.actions.act_window">
+            <field name="name">Job Estimation</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.order</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="Jobs.job_order_view_tree"/>
+            <field name="domain">[('state', 'in', ['draft'])]</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new Job Estimation here !!
+                </p>
+            </field>
+        </record>
+
+        <record id="job_estimation_verify_action" model="ir.actions.act_window">
+            <field name="name">Waiting For Approval</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.order</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="Jobs.job_order_view_tree"/>
+            <field name="domain">[('state', 'in', ['waiting'])]</field>
+            <field name="context">{'create': False}</field>
+        </record>
+
+        <menuitem id="job_menu_order"
+                  name="Jobs Orders"
+                  parent="job_menu_root"
+                  sequence="2"/>
+
+        <menuitem id="menu_job_estimation_action"
+                  name="Estimations"
+                  action="job_estimation_action"
+                  parent="job_menu_order"
+                  sequence="1"/>
+
+        <menuitem id="menu_job_estimation_verify_action"
+                  action="job_estimation_verify_action"
+                  parent="job_menu_order"
+                  groups="sales_team.group_sale_manager"
+                  sequence="2"/>
+
+        <menuitem id="menu_job_order_action"
+                  name="Jobs"
+                  action="job_order_action"
+                  parent="job_menu_order"
+                  sequence="3"/>
+
+        <record id="job_order_line_view_form" model="ir.ui.view">
+            <field name="name">job_order_line_view_form</field>
+            <field name="model">job.order.line</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="is_material" invisible="1"/>
+                            <field name="is_equipment" invisible="1"/>
+                            <field name="is_labour" invisible="1"/>
+                            <group>
+                                <field name="product_id"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="unit_cost"/>
+                                <field name="unit_price"/>
+                                <field name="margin"/>
+                                <field name="order_qty" string="Estimated Qty"/>
+                                <field name="in_stock_qty" attrs="{'invisible':[('is_labour', '=', True)]}"/>
+                                <field name="amount_total" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                            <group attrs="{'invisible': ['|', ('is_labour', '=', True), ('purchase_qty', '=', 0)]}">
+                                <field name="purchase_amount_total" attrs="{'invisible': [('purchase_qty', '=', 0)]}"/>
+                            </group>
+                            <group string="Rental" col="4" colspan="2"
+                                   attrs="{'invisible': [('is_equipment', '=', False)]}">
+                                <field name="is_rental"/>
+                                <field name="rule_type"/>
+                            </group>
+                        </group>
+                        <group>
+                            <div class="row">
+
+                                <div class="col-2" attrs="{'invisible': [('remaining_qty', '&lt;=', 0)]}">
+                                    <field name="remaining_qty"
+                                           widget="gauge"
+                                           options="{'max_field':'order_qty', 'style': 'width:100px; height: 100px;cursor:pointer;'}"/>
+                                </div>
+                                <div class="col-2" attrs="{'invisible': [('actual_qty', '&lt;=', 0)]}">
+                                    <field name="actual_qty"
+                                           widget="gauge"
+                                           options="{'max_field':'order_qty', 'style': 'width:100px; height: 100px;cursor:pointer;'}"/>
+                                </div>
+                                <div class="col-2" attrs="{'invisible': [('purchase_qty', '&lt;=', 0)]}">
+                                    <field name="purchase_qty"
+                                           widget="gauge"
+                                           options="{'max_field':'order_qty', 'style': 'width:100px; height: 100px;cursor:pointer;'}"/>
+                                </div>
+                                <div class="col-2" attrs="{'invisible': [('internal_transfer_qty', '&lt;=', 0)]}">
+                                    <field name="internal_transfer_qty"
+                                           widget="gauge"
+                                           options="{'max_field':'order_qty', 'style': 'width:100px; height: 100px;cursor:pointer;'}"/>
+                                </div>
+
+                            </div>
+                        </group>
+                        <notebook
+                                attrs="{'invisible': ['|', ('is_labour', '=', True), '&amp;', ('purchase_qty', '=', 0), ('internal_transfer_qty', '=', 0)]}">
+                            <page string="Purchase Lines" attrs="{'invisible': [('purchase_qty', '=', 0)]}">
+                                <field name="purchase_line_ids"/>
+                            </page>
+                            <page string="Stock Transfer" attrs="{'invisible': [('internal_transfer_qty', '=', 0)]}">
+                                <field name="stock_move_ids"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

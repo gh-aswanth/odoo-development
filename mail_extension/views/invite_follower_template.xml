@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="mail_post">
+             <t t-set="access_name">
+                View <t t-esc="model_description or 'document'"/>
+            </t>
+            <div>
+                <p>Hello,</p>
+                <p><t t-esc="user_name"/> invited you to follow <t t-esc="document_name"/> document : <t t-esc="title"/></p></div>
+                <p style="margin-top:24px; margin-bottom:16px">
+                    <a style="background-color:#875A7B; padding:10px; color:#fff; border-radius:5px" t-att-href='url'>
+                        <t t-esc="access_name"/>
+                     </a>
+                </p>
+        </template>
+    </data>
+</odoo>

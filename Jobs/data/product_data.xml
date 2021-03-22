@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="job_service_product" model="product.product">
+            <field name="name">Contract</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="type">service</field>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="description_sale">Test JOB [ Contract ] Product</field>
+            <field name="default_code">TEST-SERV-001</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="stock_picking_from_inherit_jobs" model="ir.ui.view">
+            <field name="name">Stock.Picking.Job.Form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='scheduled_date']" position="before">
+                    <field name="analytic_account_id"/>
+                </xpath>
+                <xpath expr="//page[position()=3]/field[@name='move_ids_without_package']/form/group[position()=1]"
+                       position="inside">
+                    <group>
+                        <field name="analytic_account_id"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="stock_move_line_from_inherit_job" model="ir.ui.view">
+            <field name="name">Stock.Move.Line.Job.Form</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_move_line_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/group[2]/label[1]" position="before">
+                    <field name="analytic_account_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
+

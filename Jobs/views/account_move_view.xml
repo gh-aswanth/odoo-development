@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="account_move_from_inherit_job" model="ir.ui.view">
+            <field name="name">Account.Move.Job.Form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/group[2]/div[hasclass('o_td_label')]" position="before">
+                    <field name="analytic_account_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

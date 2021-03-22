@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="job_sub_contract_from_view" model="ir.ui.view">
+            <field name="name">Job.Sub.Contract.Form</field>
+            <field name="model">job.sub.contract</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="vendor_id"/>
+                            </group>
+                            <group>
+                                <field name="estimated_price"/>
+                                <field name="cost_price"/>
+                            </group>
+                        </group>
+                        <separator string="Description" colspan="4"/>
+                        <field name="name"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="job_sub_contract_action" model="ir.actions.act_window">
+            <field name="name">Sub Contract</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">job.sub.contract</field>
+            <field name="view_mode">form</field>
+        </record>
+
+        <!--        <menuitem name="ModelTitle" id="ModelName_menu" parent="your_root_menu" action="ModelName_act_window"/>-->
+
+    </data>
+</odoo>

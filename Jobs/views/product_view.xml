@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="product_product_form_inherit_jobs" model="ir.ui.view">
+            <field name="name">product.product.form.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="priority" eval="8"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[1]" position="after">
+                    <group>
+                        <group col="4" string="Service Configuration">
+                            <field name="boq_type"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <menuitem id="job_menu_root"
+                  name="Jobs"
+                  web_icon="Jobs,static/description/icon.png"
+                  sequence="1"/>
+
+        <menuitem id="job_menu_catalog"
+                  name="Catalog"
+                  parent="job_menu_root"
+                  sequence="3"/>
+
+        <menuitem id="menu_job_product"
+                  parent="job_menu_catalog"
+                  action="sale.product_template_action"
+                  sequence="1"/>
+
+        <menuitem id="menu_job_product_variant"
+                  parent="job_menu_catalog"
+                  action="product.product_normal_action_sell"
+                  sequence="2"/>
+    </data>
+</odoo>

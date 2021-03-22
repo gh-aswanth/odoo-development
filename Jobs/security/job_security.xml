@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_show_materials" model="res.groups">
+            <field name="name">Show Materials</field>
+        </record>
+        <record id="group_show_equipments" model="res.groups">
+            <field name="name">Show Equipments</field>
+        </record>
+        <record id="group_show_labours" model="res.groups">
+            <field name="name">Show Labours</field>
+        </record>
+        <record id="group_show_sub_contracts" model="res.groups">
+            <field name="name">Show Sub-Contract</field>
+        </record>
+    </data>
+</odoo>

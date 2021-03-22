@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="helpdesk_ticket_view_form_inherit_confianz_ticket_management" model="ir.ui.view">
+        <field name="name">helpdesk.ticket.view.form.inherit.confianz.ticket.management</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_ticket_view_form"/>
+        <field name="groups_id" eval="[(4, ref('helpdesk.group_helpdesk_user'))]"/>
+        <field name="priority" eval="8"/>
+        <field name="arch" type="xml">
+            <field name="priority" position="after">
+                <field name="reported_time"/>
+            </field>
+            <field name="tag_ids" position="after">
+               <field name="close_date" readonly="1"/>
+            </field>
+            <field name="user_id" position="after">
+                <field name="manager_id"/>
+            </field>
+            <field name="partner_email" position="after">
+                <field name="reported_by"/>
+                <field name="reported_by_phone" widget="phone"/>
+                <field name="contact_ids" widget="many2many_tags"/>
+            </field>
+            <header position="inside">
+                <button name="ticket_get_restored" string="Restore" type="object" class='oe_highlight' groups="helpdesk.group_helpdesk_user"
+                    attrs="{'invisible' : [('stage_active', '=', False)]}"/>
+            </header>
+            <field name="stage_id" position="attributes">
+                <attribute name="attrs">{'invisible':[('stage_active', '=', True)]}</attribute>
+            </field>
+            <field name="description" position="replace">
+            </field>
+            <xpath expr="//sheet/group" position="after">
+                <notebook>
+                    <page string="Acknowledgment">
+                               <field name="description"/>
+                    </page>
+                    <page string="Actions">
+                         <group>
+                            <group string="Reason &amp; Fix Info">
+                                <field name="reason" nolabel="1" attrs="{'required':[('stage_active', '=', True)]}" placeholder="Reason of the Issue..."/>
+                            </group>
+                            <group string="Action Taken &amp; Technician">
+                                <field name="action_taken_id"  attrs="{'required':[('stage_active', '=', True)]}" placeholder="Action taken"/>
+                                <field name="technician_id"  attrs="{'required':[('stage_active', '=', True)]}" placeholder="Technician"/>
+                            </group>
+                            <group>
+                                <field name="fix" nolabel="1" attrs="{'required':[('stage_active', '=', True)]}" placeholder="Fix note of the Issue..."/>
+                            </group>
+                         </group>
+                    </page>
+                    <page string="Follow Up">
+                        <group>
+                            <group string="Internal Follow Up">
+                                <field name="internal_follow_up" nolabel="1"/>
+                            </group>
+                            <group string="External Follow Up">
+                                <field name="external_follow_up" nolabel="1"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Reference">
+                        <group>
+                            <group>
+                                <field name="stage_active" invisible="1"/>
+                                <field name="issue_reference_1"/>
+                                <field name="issue_ref1_product_id" attrs="{'invisible':[('issue_reference_1', '!=', 'product')]}" options="{'no_create': True}"/>
+                                <field name="issue_ref1_invoice" attrs="{'invisible':[('issue_reference_1', '!=', 'account')]}" options="{'no_create': True}"/>
+                                <field name="issue_ref1_project" attrs="{'invisible':[('issue_reference_1', '!=', 'project')]}" options="{'no_create': True}"/>
+                                <field name="issue_reference_2"  attrs="{'invisible':[('issue_reference_1', 'in', ['project', 'product'])]}"/>
+                                <field name="issue_ref2_invoice_line" attrs="{'invisible':[('issue_reference_2', '!=', 'invoice_line')]}" domain="[('invoice_id.id','=',issue_ref1_invoice)]" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+    <record id="helpdesk_search_view_inherit_confianz_ticket_management" model="ir.ui.view">
+        <field name="name">helpdesk.search.view.inherit.confianz.ticket.management</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="inherit_id" ref="helpdesk.helpdesk_tickets_view_search"/>
+        <field name="groups_id" eval="[(4, ref('helpdesk.group_helpdesk_user'))]"/>
+        <field name="arch" type="xml">
+         <xpath expr="//search/field[@name='name']" position="before">
+             <field name="name" string="Tickets" filter_domain="['|','|','|',('name','ilike',self),('description','ilike',self),('reason','ilike',self),('fix','ilike',self)]"/>
+         </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="mail_compose_message_wizard_form_inherit_jobs" model="ir.ui.view">
+            <field name="name">job.mail.compose.message.form</field>
+            <field name="model">mail.compose.message</field>
+            <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form//field[@name='subject']" position="before">
+                    <field name="email_to" invisible="not context.get('mail_with_cc')"/>
+                    <field name="email_cc" invisible="not context.get('mail_with_cc')"/>
+                </xpath>
+                <xpath expr="//footer/button[1]" position="attributes">
+                    <attribute name="class">btn-success o_mail_send</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="helpdesk_issue_report_page" model="report.paperformat">
+            <field name="name">Issue Report page</field>
+            <field name="default" eval="True"/>
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">40</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">7</field>
+            <field name="margin_right">7</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">35</field>
+            <field name="dpi">90</field>
+        </record>
+        <report
+            id="incident_report"
+            model="helpdesk.ticket"
+            string="Incident Report"
+            report_type="qweb-pdf"
+            name="confianz_ticket_management.report_helpdesk_ticket_with_incident"
+            file="confianz_ticket_management.report_helpdesk_ticket_with_incident"
+            attachment="object.name+'.pdf'"
+            print_report_name="object.name"
+            groups="helpdesk.group_helpdesk_user"
+        />
+        <record id="incident_report" model="ir.actions.report">
+            <field name="paperformat_id" ref="confianz_ticket_management.helpdesk_issue_report_page"/>
+        </record>
+    </data>
+</odoo>

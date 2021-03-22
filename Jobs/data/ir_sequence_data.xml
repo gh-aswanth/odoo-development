@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="seq_job_estimation" model="ir.sequence">
+            <field name="name">Estimation</field>
+            <field name="code">job.order</field>
+            <field name="prefix">EST-</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="seq_job_order" model="ir.sequence">
+            <field name="name">Job Order</field>
+            <field name="prefix">JOB-</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>
