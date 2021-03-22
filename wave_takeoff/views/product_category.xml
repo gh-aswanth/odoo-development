@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="product_category_form_view_inherit_base_wave_takeoff" model="ir.ui.view">
+            <field name="name">product.category.form.view.inherit.base.wave.takeoff</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="stock.product_category_form_view_inherit"/>
+            <field name="arch" type="xml">
+                <field name="removal_strategy_id" position="after">
+                    <field name="is_takeoff" widget="boolean_toggle"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="product_category_form_view_inherit_wave_takeoff" model="ir.ui.view">
+            <field name="name">wave_takeoff.product.category.form</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="account.view_category_property_form"/>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='account_property']/group[1]" position="inside">
+                    <field name="budgetary_expense_position_id" attrs="{'required': [('is_takeoff', '=', True)]}"/>
+                    <field name="budgetary_income_position_id" attrs="{'required': [('is_takeoff', '=', True)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='property_account_income_categ_id']" position="attributes">
+                    <attribute name="attrs">{'required': [('budgetary_income_position_id', '!=', False)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='property_account_expense_categ_id']" position="attributes">
+                    <attribute name="attrs">{'required': [('budgetary_income_position_id', '!=', False)]}</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

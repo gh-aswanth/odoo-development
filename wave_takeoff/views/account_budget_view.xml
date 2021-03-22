@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="crossovered_budget_view_form_inherit_wave_takeoff">
+            <field name="name">crossovered.budget.view.form.inherit.wave.takeoff</field>
+            <field name="model">crossovered.budget</field>
+            <field name="inherit_id" ref="account_budget.crossovered_budget_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="analytic_account_id"/>
+                </xpath>
+                <xpath expr="//notebook/page/field[@name='crossovered_budget_line']/form/group/group[2]" position="after">
+                    <separator string="Sale Lines"/>
+                    <field name="sale_line_ids">
+                        <tree edit="false" create="false" editable="bottom">
+                            <field name="order_id"/>
+                            <field name="product_id"/>
+                            <field name="product_uom_qty"/>
+                            <field name="price_unit"/>
+                            <field name="price_subtotal" string="SubTotal(P)" sum="Total Price"/>
+                            <field name="purchase_price" string="Cost"/>
+                            <field name="purchase_sub_total" string="SubTotal(C)" sum="Total Cost"/>
+                            <field name="company_id" invisible="1"/>
+                        </tree>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_analytic_account_form_budget_wave_takeoff" model="ir.ui.view">
+                <field name="name">account.analytic.account.form.budget.inherit.wake.takeoff</field>
+                <field name="model">account.analytic.account</field>
+                <field name="inherit_id" ref="account_budget.view_account_analytic_account_form_inherit_budget"/>
+                <field name="arch" type="xml">
+                    <xpath expr="//notebook" position="attributes">
+                        <attribute name="group"></attribute>
+                    </xpath>
+                    <xpath expr="//field[@name='crossovered_budget_line']/form/group" position="after">
+                        <separator string="Sale Lines"/>
+                        <field name="sale_line_ids">
+                                <tree edit="false" create="false" editable="bottom">
+                                    <field name="order_id"/>
+                                    <field name="product_id"/>
+                                    <field name="product_uom_qty"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_subtotal" string="SubTotal(P)" sum="Total Price"/>
+                                    <field name="purchase_price" string="Cost"/>
+                                    <field name="purchase_sub_total" string="SubTotal(C)" sum="Total Cost"/>
+                                    <field name="company_id" invisible="1"/>
+                                </tree>
+                        </field>
+                    </xpath>
+                </field>
+            </record>
+    </data>
+</odoo>

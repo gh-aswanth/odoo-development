@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_immediate_transfer_takeoff" model="ir.ui.view">
+        <field name="name">stock.immediate.transfer.takeoff.view.form</field>
+        <field name="model">takeoff.request.validator</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="takeoff_line_ids" widget="one2many">
+                        <tree editable="bottom" create="false" delete="false"
+                              decoration-warning="0 &lt; virtual_available_at_date &lt; qty_to_deliver and not is_mto"
+                              decoration-danger="virtual_available_at_date &lt;= 0 and not is_mto"
+                              decoration-success="virtual_available_at_date &gt;= qty_to_deliver">
+                            <field name="product_id" readonly="1" options='{"no_open": True}'/>
+                            <field name="name" readonly="1"/>
+                            <field name="product_uom_qty" readonly="1" options='{"no_open": True}'/>
+                            <widget name="qty_at_date_widget" width="20px"/>
+                            <field name="product_uom" readonly="1" options='{"no_open": True}'/>
+                            <field name="route_id" options="{'no_create_edit': True, 'no_create':True}" required="1"/>
+                            <field name="virtual_available_at_date" optional="hide"/>
+                            <field name="qty_available_today" optional="hide"/>
+                            <field name="free_qty_today" optional="hide"/>
+                            <field name="scheduled_date" optional="hide"/>
+                            <field name="qty_to_deliver" invisible="1"/>
+                            <field name="qty_delivered" invisible="1"/>
+                            <field name="is_mto" invisible="1"/>
+                            <field name="display_qty_widget" invisible="1"/>
+                            <field name="product_uom_category_id" invisible="1"/>
+                        </tree>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="make_process" string="Proceed" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

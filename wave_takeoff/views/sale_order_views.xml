@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="view_order_form_inherit_wave_takeoff" model="ir.ui.view">
+            <field name="name">sale.order.form.wave.takeoff</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//sheet/div[@name='button_box']/button[@name='action_view_invoice']" position="after">
+                    <button string=" " type="object" name="open_takeoff_tree_view" class="oe_inline oe_stat_button" icon="fa-share-alt" attrs="{'invisible': [('state', 'in', ('done','cancel'))]}">
+                        <field name="takeoff_count" string="Take Off" widget="statinfo"/>
+                    </button>
+                </xpath>
+                <xpath expr="//page/field[@name='order_line']/form/div[@name='invoice_lines']" position="before">
+                    <div name="budget_line_ids"
+                         attrs="{'invisible': ['|', ('display_type', '!=', False), ('budget_line_ids', '=', [])]}">
+                        <label for="budget_line_ids"/>
+                        <field name="budget_line_ids" widget="section_and_note_one2many" mode="tree" readonly="1">
+                             <tree string="Budget Lines"
+                                   decoration-success="is_above_budget and planned_amount &gt; 0"
+                                   decoration-danger="is_above_budget and planned_amount &lt; 0" editable="bottom">
+                                <field name="general_budget_id"/>
+                                <field name="analytic_account_id" groups="analytic.group_analytic_accounting"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                                <field name="paid_date" groups="base.group_no_one"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="planned_amount" sum="Planned Amount"/>
+                                <field name="practical_amount" sum="Practical Amount"/>
+                                <field name="theoritical_amount" sum="Theoretical Amount"/>
+                                <field name="percentage" widget="percentage"/>
+                                <button type="object" name="action_open_budget_entries"
+                                    string="Entries..." icon="fa-arrow-circle-o-right"
+                                    groups="account.group_account_user"/>
+                                <field name="is_above_budget" invisible="1"/>
+                                <field name="is_expense" string="Expense"/>
+                                <field name="is_revenue" string="Revenue"/>
+                             </tree>
+                        </field>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="sale_purchase.sale_order_form_view_inherit" model="ir.ui.view">
+            <field name="active" eval="True"/>
+        </record>
+
+         <record id="sale_order_template_view_form_inherit_wave_takeoff" model="ir.ui.view">
+            <field name="name">sale.order.template.view.form.inherit.wave.takeoff</field>
+            <field name="model">sale.order.template</field>
+            <field name="inherit_id" ref="sale_management.sale_order_template_view_form"/>
+            <field name="arch" type="xml">
+                <field name="company_id" position="after">
+                    <field name="is_takeoff"/>
+                </field>
+                <xpath expr="//field[@name='sale_order_template_line_ids']/tree/field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="attrs">{'column_invisible': [('parent.is_takeoff', '=', True)]}</attribute>
+                </xpath>
+                 <xpath expr="//field[@name='sale_order_template_line_ids']/tree/field[@name='product_uom_qty']" position="after">
+                     <field name="takeoff_qty" attrs="{'column_invisible': [('parent.is_takeoff', '=', False)]}"/>
+                 </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

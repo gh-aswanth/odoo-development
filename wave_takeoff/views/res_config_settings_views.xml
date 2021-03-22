@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="takeoff_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.wave.takeoff</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Takeoff" string="Takeoff" data-key="wave_takeoff">
+                    <h2>Takeoff</h2>
+                    <div class="row mt16 o_settings_container">
+                        <label for="default_request_template_id" string="Default Takeoff Template"
+                               class="col-lg-4 o_light_label"/>
+                        <field name="default_request_template_id" class="oe_inline"/>
+                    </div>
+                    <div class="row mt16 o_settings_container">
+                        <label for="default_inventory_users_ids" class="col-lg-4 o_light_label"/>
+                        <field name="default_inventory_users_ids" class="oe_inline" widget="many2many_tags"/>
+                    </div>
+                    <div class="row mt16 o_settings_container">
+                        <label for="default_qty_fully_available" class="col-lg-4 o_light_label"/>
+                        <field name="default_qty_fully_available" class="oe_inline"/>
+                    </div>
+                    <div class="row mt16 o_settings_container">
+                        <label for="default_qty_partially_available" class="col-lg-4 o_light_label"/>
+                        <field name="default_qty_partially_available" class="oe_inline"/>
+                    </div>
+                    <div class="row mt16 o_settings_container">
+                        <label for="default_qty_not_available" class="col-lg-4 o_light_label"/>
+                        <field name="default_qty_not_available" class="oe_inline"/>
+                    </div>
+
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_takeoff_config" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'wave_takeoff'}</field>
+    </record>
+
+    <menuitem id="menu_takeoff_configuration"
+              name="Configuration"
+              parent="wave_takeoff_menu_root"
+              groups="base.group_no_one"
+              sequence="4"/>
+
+    <menuitem id="menu_job_config"
+              name="Settings"
+              parent="menu_takeoff_configuration"
+              action="action_takeoff_config"
+              groups="base.group_system"
+              sequence="0"/>
+
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+         <record id="view_picking_form_inherit_base_wave_takeoff" model="ir.ui.view">
+            <field name="name">wave_takeoff.view.base.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+
+                 <xpath expr="//field[@name='group_id']" position="after">
+                    <field name="analytic_account_id" readonly="1"/>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="sale_id" attrs="{'invisible': [('is_takeoff', '=', True)]}"/>
+                    <field name="can_create_takeoff" invisible="1"/>
+                    <field name="sale_order_id"
+                           domain="[('analytic_account_id', '!=', False)]"
+                           attrs="{'invisible': ['|', ('can_create_takeoff', '=', False), ('is_takeoff', '=', False)],
+                            'required': [('is_takeoff', '=', True)],
+                            'readonly': [('state', 'in', ['done', 'cancel'])]
+                            }"/>
+                    <field name="is_takeoff" attrs="{'invisible': [('can_create_takeoff', '=', False)],
+                                                    'readonly': [('state', 'in', ['done', 'cancel'])]}"/>
+                </xpath>
+
+            </field>
+         </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.module.category" id="module_wave_takeoff_category">
+            <field name="name">Take Off</field>
+            <field name="sequence">11</field>
+        </record>
+
+        <record id="group_takeoff_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="module_wave_takeoff_category"/>
+        </record>
+
+        <record id="group_takeoff_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="category_id" ref="module_wave_takeoff_category"/>
+            <field name="implied_ids" eval="[(4, ref('group_takeoff_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+
+    </data>
+</odoo>

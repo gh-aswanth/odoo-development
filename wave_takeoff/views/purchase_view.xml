@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="purchase_order_form_inherit_wave_takeoff" model="ir.ui.view">
+            <field name="name">purchase.order.from.inherit.wave.takeoff</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_ref']" position="after">
+                    <field name="can_create_takeoff" invisible="1"/>
+                    <field name="is_takeoff" attrs="{'invisible': [('can_create_takeoff', '=', False)],
+                                                    'readonly': [('state', 'in', ['purchase', 'done', 'cancel'])]}"/>
+                </xpath>
+<!--                <xpath expr="//button[@id='bid_confirm']" position="attributes">-->
+<!--                    <attribute name="invisible">1</attribute>-->
+<!--                </xpath>-->
+<!--                <xpath expr="//button[@id='draft_confirm']" position="attributes">-->
+<!--                    <attribute name="invisible">1</attribute>-->
+<!--                </xpath>-->
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="sale_id" attrs="{'required': [('is_takeoff', '=', True)],
+                                                'readonly': [('state', 'in', ['purchase', 'done', 'cancel'])]}"/>
+                </xpath>
+<!--                <xpath expr="//button[@name='button_confirm']" position="after">-->
+<!--                     <button name="takeoff_validation"-->
+<!--                            string="Confirm Order"-->
+<!--                            type="object"-->
+<!--                             states="sent"-->
+<!--                            class="oe_highlight"/>-->
+<!--                     <button name="takeoff_validation"-->
+<!--                            string="Confirm Order"-->
+<!--                            type="object"-->
+<!--                            states="draft"/>-->
+<!--                </xpath>-->
+            </field>
+        </record>
+    </data>
+</odoo>
