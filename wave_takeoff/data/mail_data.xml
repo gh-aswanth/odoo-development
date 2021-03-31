@@ -5,7 +5,7 @@
         <template id="takeoff_assigned">
             <p style="margin: 0px;">
                 <span>Hello,</span><br />
-                <span style="margin-top: 8px;">You have been assigned to the <t t-esc="model_description or 'document'"/> <t t-esc="object.display_name"/>.</span>
+                <span style="margin-top: 8px;">You have been assigned to the <t t-esc="model_description or 'document'"/> (<t t-esc="object.display_name"/>).</span>
             </p>
             <p style="margin-top: 24px; margin-bottom: 16px;">
                 <a t-att-href="'/mail/view?model=%s&amp;res_id=%s' % (object._name, object.id)" style="background-color:#875A7B; padding: 5px; text-decoration: none; color: #fff; border-radius: 5px;">

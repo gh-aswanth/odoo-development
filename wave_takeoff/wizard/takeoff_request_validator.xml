@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <field name="route_ids" invisible="1"/>
                     <field name="takeoff_line_ids" widget="one2many">
                         <tree editable="bottom" create="false" delete="false"
                               decoration-warning="0 &lt; virtual_available_at_date &lt; qty_to_deliver and not is_mto"
@@ -16,7 +17,7 @@
                             <field name="product_uom_qty" readonly="1" options='{"no_open": True}'/>
                             <widget name="qty_at_date_widget" width="20px"/>
                             <field name="product_uom" readonly="1" options='{"no_open": True}'/>
-                            <field name="route_id" options="{'no_create_edit': True, 'no_create':True}" required="1"/>
+                            <field name="route_id" options="{'no_create_edit': True, 'no_create':True}" required="1" domain="[('id', 'in', parent.route_ids)]"/>
                             <field name="virtual_available_at_date" optional="hide"/>
                             <field name="qty_available_today" optional="hide"/>
                             <field name="free_qty_today" optional="hide"/>
@@ -26,6 +27,8 @@
                             <field name="is_mto" invisible="1"/>
                             <field name="display_qty_widget" invisible="1"/>
                             <field name="product_uom_category_id" invisible="1"/>
+                            <button name="action_launch_stock_rule"
+                                    string="Run" type="object" icon="fa-check text-success" context="{'from_popup': True}"/>
                         </tree>
                     </field>
                 </sheet>

@@ -20,6 +20,20 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
+        <record id="takeoff_request_rule_takeoff_user" model="ir.rule">
+            <field name="name">wave.takeoff.rule.takeoff.user</field>
+            <field name="model_id" ref="model_takeoff_request"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_takeoff_user'))]"/>
+        </record>
+
+        <record id="takeoff_request_rule_takeoff_mager" model="ir.rule">
+            <field name="name">wave.takeoff.rule.takeoff.manager</field>
+            <field name="model_id" ref="model_takeoff_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_takeoff_manager'))]"/>
+        </record>
+
 
     </data>
 </odoo>

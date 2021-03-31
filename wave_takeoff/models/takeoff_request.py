@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
 from collections import defaultdict
+from datetime import timedelta
 from itertools import groupby
 
 from odoo import fields, models, api, _
@@ -22,7 +22,8 @@ class TakeoffRequest(models.Model):
 
     name = fields.Char(
         default="New",
-        readonly=True
+        readonly=True,
+        copy=False
     )
     order_id = fields.Many2one(
         'sale.order',
@@ -37,7 +38,8 @@ class TakeoffRequest(models.Model):
     )
     request_line_ids = fields.One2many(
         'takeoff.request.line',
-        'request_id'
+        'request_id',
+        copy=True
     )
     request_template_id = fields.Many2one(
         'sale.order.template',
@@ -109,7 +111,9 @@ class TakeoffRequest(models.Model):
         'stock.location.route',
         string='Quantity Not Available'
     )
-    group_id = fields.Many2one('procurement.group')
+    group_id = fields.Many2one(
+        'procurement.group',
+        copy=False)
     picking_ids = fields.One2many(
         'stock.picking',
         'takeoff_id'
@@ -125,6 +129,7 @@ class TakeoffRequest(models.Model):
     ], default='draft')
     ctg_total = fields.Html(compute="_compute_takeoff_total")
     takeoff_total = fields.Float(compute="_compute_takeoff_total")
+    company_id = fields.Many2one(related='order_id.company_id', readonly=True)
 
     @api.depends('request_line_ids.price_subtotal')
     def _compute_takeoff_total(self):
@@ -135,7 +140,7 @@ class TakeoffRequest(models.Model):
                 line_total = sum([i.price_subtotal for i in grp])
                 if line and line_total:
                     r += '''
-                    <tr><td><b>%s</b></td><td> :</td><td>&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;%s</td></tr>
+                    <tr><td><b><font style="color: rgb(255, 0, 0);">%s</font></b></td><td> :</td><td>&nbsp;&nbsp;&nbsp;&nbsp;$&nbsp;%.2f</td></tr>
                     ''' % (line.name, float_round(line_total, precision_digits=2))
                     total += line_total
             rec.ctg_total = '''<table>%s</table>''' % r
@@ -172,10 +177,12 @@ class TakeoffRequest(models.Model):
 
     def post(self):
         for rec in self:
+            if not any([line.product_uom_qty for line in rec.request_line_ids]):
+                raise UserError(_("The request line has no quantity specified."))
             if rec.inventory_users_ids:
                 values = {
                     'object': rec,
-                    'model_description': rec.display_name
+                    'model_description': 'Take Off Request'
                 }
                 rec.message_post_with_view(
                     'wave_takeoff.takeoff_assigned',
@@ -192,11 +199,11 @@ class TakeoffRequest(models.Model):
             'name': line.name,
         }
 
-    @api.onchange('request_template_id')
+    @api.onchange('request_template_id', 'order_id')
     def onchange_request_template_id(self):
         template = self.request_template_id.with_context(lang=self.order_id.partner_id.lang)
         order_lines = []
-
+        budgetary_positions = []
         self.request_line_ids = [(5, 0, 0)]
 
         def get_customer_lead(product):
@@ -206,17 +213,31 @@ class TakeoffRequest(models.Model):
                 return product.product_tmpl_id.sale_delay
             else:
                 return False
+        if template:
+            if self.order_id:
+                budgetary_positions = self.order_id.order_line.\
+                    mapped('product_id.categ_id').mapped('budgetary_expense_position_id').ids
+            for section, tpl_lines in groupby(template.sale_order_template_line_ids, key=lambda l: l.section):
+                data = []
+                for li in tpl_lines:
+                    if li.display_type:
+                        continue
+                    if not self.order_id or budgetary_positions and \
+                            li.product_id.categ_id.budgetary_expense_position_id.id in budgetary_positions:
+                        data.append((0, 0, {
+                            'product_uom_qty': li.takeoff_qty,
+                            'product_id': li.product_id.id,
+                            'name': li.name,
+                            'product_uom': li.product_id.uom_id.id,
+                            'customer_lead': get_customer_lead(li.product_id)
+                        }))
+                if section and data:
+                    order_lines.append((0, 0, {
+                            'display_type': 'line_section',
+                            'name': section,
+                        }))
+                order_lines.extend(data)
 
-        for line in template.sale_order_template_line_ids:
-            data = self._compute_line_data_for_template_change(line)
-            if line.product_id:
-                data.update({
-                    'product_uom_qty': line.takeoff_qty,
-                    'product_id': line.product_id.id,
-                    'product_uom': line.product_id.uom_id.id,
-                    'customer_lead': get_customer_lead(line.product_id)
-                })
-            order_lines.append((0, 0, data))
         self.request_line_ids = order_lines
 
     @api.model
@@ -231,7 +252,7 @@ class TakeoffRequest(models.Model):
             line.write({'section': section, 'sequence': sequence})
 
         if record.inventory_users_ids:
-            record.message_subscribe(partner_ids=record.inventory_users_ids.mapped('partner_id').ids)
+            record.message_subscribe(partner_ids=record.inventory_users_ids.mapped('partner_id').ids + record.user_id.partner_id.ids)
         return record
 
     def write(self, vals):
@@ -245,6 +266,8 @@ class TakeoffRequest(models.Model):
             section = False
             if vals.get('inventory_users_ids'):
                 self.message_subscribe(partner_ids=rec.inventory_users_ids.mapped('partner_id').ids)
+            if vals.get('user_id'):
+                self.message_subscribe(partner_ids=rec.user_id.partner_id.ids)
         return res
 
     def button_request_lines(self):
@@ -253,8 +276,6 @@ class TakeoffRequest(models.Model):
         action_data.update({
             'domain': [('id', 'in', self.request_line_ids.filtered(lambda r: not r.display_type).ids)],
             'context': {
-                'search_default_group_by_section': 1 if not self._context.get('takeoff_change') and len(
-                    self.request_line_ids) else 0 if self._context.get('takeoff_change') else 1,
                 'search_default_group_by_budgetary_position': 1 if self._context.get('takeoff_change') else 0,
                 'default_request_id': self.id
             }
@@ -266,19 +287,32 @@ class TakeoffRequest(models.Model):
         return action_data
 
     def initiate_request(self):
-        changes = self.request_line_ids.filtered(lambda r: r.budgetary_position_id and r.product_uom_qty and not r.mark_as_done)
+        changes = self.request_line_ids.filtered(lambda r: r.product_uom_qty and not r.mark_as_done)
         changes.auto_set_route()
+        route = self.qty_not_available | self.qty_partially_available | self.qty_fully_available
         wiz = self.env['takeoff.request.validator'].create({
-            'takeoff_line_ids': [(6, 0, changes.ids)]
+            'takeoff_line_ids': [(6, 0, changes.ids)],
+            'route_ids': [(6, 0, route.ids)]
         })
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Routing Summary'),
-            'res_model': 'takeoff.request.validator',
-            'view_mode': 'form',
-            'res_id': wiz.id,
-            'target': 'new'
-        }
+        if changes:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Routing Summary'),
+                'res_model': 'takeoff.request.validator',
+                'view_mode': 'form',
+                'res_id': wiz.id,
+                'target': 'new'
+            }
+        else:
+            if any([line.mark_as_done for line in self.request_line_ids]):
+                request = self.request_line_ids.mapped('request_id')
+                request.write({'state': 'confirmed'})
+                if request.request_template_id.mail_template_id:
+                    request.request_template_id.mail_template_id.send_mail(request.id)
+                else:
+                    request.message_post(
+                        body=f'Hey {request.user_id.name},\n your takeoff request {request.name} was confirmed.',
+                        partner_ids=request.user_id.partner_id.ids)
 
 
 TakeoffRequest()
@@ -328,7 +362,6 @@ class TakeoffRequestLine(models.Model):
     route_id = fields.Many2one(
         'stock.location.route',
         string='Route',
-        domain=[('takeoff_selectable', '=', True)],
         ondelete='restrict', check_company=True
     )
     currency_id = fields.Many2one(
@@ -359,15 +392,36 @@ class TakeoffRequestLine(models.Model):
         'takeoff_line_id',
         string='Stock Moves'
     )
-    virtual_available_at_date = fields.Float(compute='_compute_qty_at_date')
-    scheduled_date = fields.Datetime(compute='_compute_qty_at_date')
-    free_qty_today = fields.Float(compute='_compute_qty_at_date')
-    qty_available_today = fields.Float(compute='_compute_qty_at_date')
-    is_mto = fields.Boolean(compute='_compute_is_mto')
-    display_qty_widget = fields.Boolean(compute='_compute_qty_to_deliver')
-    qty_to_deliver = fields.Float(compute='_compute_qty_to_deliver')
-    qty_delivered = fields.Float(compute='_compute_qty_delivered')
-    mark_as_done = fields.Boolean()
+    virtual_available_at_date = fields.Float(
+        compute='_compute_qty_at_date'
+    )
+    scheduled_date = fields.Datetime(
+        compute='_compute_qty_at_date'
+    )
+    free_qty_today = fields.Float(
+        compute='_compute_qty_at_date'
+    )
+    qty_available_today = fields.Float(
+        compute='_compute_qty_at_date'
+    )
+    is_mto = fields.Boolean(
+        compute='_compute_is_mto'
+    )
+    display_qty_widget = fields.Boolean(
+        compute='_compute_qty_to_deliver'
+    )
+    qty_to_deliver = fields.Float(
+        compute='_compute_qty_to_deliver'
+    )
+    qty_delivered = fields.Float(
+        compute='_compute_qty_delivered'
+    )
+    mark_as_done = fields.Boolean(copy=False)
+    purchase_line_ids = fields.One2many(
+        'purchase.order.line',
+        'takeoff_line_id',
+        string='Purchase Lines'
+    )
 
     @api.depends('move_ids.state', 'move_ids.scrapped', 'move_ids.product_uom_qty', 'move_ids.product_uom')
     def _compute_qty_delivered(self):
@@ -485,6 +539,22 @@ class TakeoffRequestLine(models.Model):
             }
         }
 
+    @api.onchange('product_id')
+    def _onchange_route_id(self):
+
+        category_list = self.request_id.order_id and self.request_id.order_id.order_line.mapped('product_id.categ_id').filtered(lambda p: p.budgetary_expense_position_id)
+        if self.product_id:
+            name = self.product_id.display_name
+            if self.product_id.description_sale:
+                name += '\n' + self.product_id.description_sale
+            self.name = name
+            self.product_uom = self.product_id.uom_id
+        return {
+            'domain': {
+                'route_id': [('categ_id', 'in', category_list.ids)]
+            }
+        }
+
     @api.depends('request_id.order_id', 'product_id.standard_price', 'currency_id', 'product_id.uom_id', 'product_uom')
     def _compute_purchase_price(self):
         for line in self:
@@ -504,18 +574,12 @@ class TakeoffRequestLine(models.Model):
                 )
             line.purchase_price = price
 
-
-
     def _expected_date(self):
         self.ensure_one()
         order_date = fields.Datetime.from_string(fields.Datetime.now())
         return order_date + timedelta(days=self.customer_lead or 0.0)
 
     def _prepare_procurement_values(self, group_id=False):
-        """ Prepare specific key for moves or other components that will be created from a stock rule
-        comming from a sale order line. This method could be override in order to add other custom key that could
-        be used in move/po creation.
-        """
         values = {}
         self.ensure_one()
         date_planned = self.scheduled_date
@@ -537,47 +601,53 @@ class TakeoffRequestLine(models.Model):
             'partner_id': self.request_id.order_id.partner_shipping_id.id,
             'takeoff_id': self.request_id.id
         }
+
     def _get_procurement_group(self):
         return self.request_id.group_id
 
-    def _action_launch_stock_rule(self):
+    def action_launch_stock_rule(self):
         procurements = []
         PG = self.env['procurement.group']
         for line in self:
-            group_id = line._get_procurement_group()
-            if not group_id:
-                group_id = self.env['procurement.group'].create(line._prepare_procurement_group_vals())
-                line.request_id.group_id = group_id
-            else:
-                updated_vals = {}
-                if group_id.partner_id != line.request_id.order_id.partner_shipping_id:
-                    updated_vals.update({'partner_id': line.request_id.order_id.partner_shipping_id.id})
-                if group_id.move_type != line.request_id.picking_policy:
-                    updated_vals.update({'move_type': line.request_id.picking_policy})
-                if updated_vals:
-                    group_id.write(updated_vals)
+            if not line.mark_as_done:
+                group_id = line._get_procurement_group()
+                if not group_id:
+                    group_id = self.env['procurement.group'].create(line._prepare_procurement_group_vals())
+                    line.request_id.group_id = group_id
+                else:
+                    updated_vals = {}
+                    if group_id.partner_id != line.request_id.order_id.partner_shipping_id:
+                        updated_vals.update({'partner_id': line.request_id.order_id.partner_shipping_id.id})
+                    if group_id.move_type != line.request_id.picking_policy:
+                        updated_vals.update({'move_type': line.request_id.picking_policy})
+                    if updated_vals:
+                        group_id.write(updated_vals)
 
-            values = line._prepare_procurement_values(group_id=group_id)
-            product_qty = line.product_uom_qty
+                values = line._prepare_procurement_values(group_id=group_id)
+                product_qty = line.product_uom_qty
 
-            line_uom = line.product_uom
-            quant_uom = line.product_id.uom_id
-            product_qty, procurement_uom = line_uom._adjust_uom_quantities(product_qty, quant_uom)
-            procurements.append(
-                PG.Procurement(
-                    line.product_id,
-                    product_qty,
-                    procurement_uom,
-                    line.request_id.order_id.partner_shipping_id.property_stock_customer,
-                    line.name, line.request_id.name,
-                    line.request_id.order_id.company_id,
-                    values
+                line_uom = line.product_uom
+                quant_uom = line.product_id.uom_id
+                product_qty, procurement_uom = line_uom._adjust_uom_quantities(product_qty, quant_uom)
+                procurements.append(
+                    PG.Procurement(
+                        line.product_id,
+                        product_qty,
+                        procurement_uom,
+                        line.request_id.order_id.partner_shipping_id.property_stock_customer,
+                        line.name, line.request_id.name,
+                        line.request_id.order_id.company_id,
+                        values
+                    )
                 )
-            )
-            line.mark_as_done = True
+                line.mark_as_done = True
 
-        if procurements:
-            PG.run(procurements)
+            if procurements:
+                PG.run(procurements)
+
+        if self._context.get('from_popup', False):
+            return self.mapped('request_id').initiate_request()
+
         return True
 
 

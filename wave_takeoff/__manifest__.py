@@ -28,6 +28,7 @@ the client without having to put them on a sale.
         'views/purchase_view.xml',
         'views/product_view.xml',
         'views/account_budget_view.xml',
+        'views/project_view.xml',
         'views/res_config_settings_views.xml',
         'wizard/takeoff_request_validator.xml'
     ],
@@ -39,12 +40,12 @@ the client without having to put them on a sale.
         'sale_stock',
         'purchase_stock',
         'wave_sale_revision',
-        'sale_purchase'
+        'sale_purchase',
+        'project'
     ],
     'installable': True,
     'auto_install': False,
     'application': False,
 }
-
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -1,8 +1,10 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_takeoff_request,takeoff.request.user,model_takeoff_request,wave_takeoff.group_takeoff_user,1,1,0,0
-access_takeoff_request_line,takeoff.request.line.user,model_takeoff_request_line,wave_takeoff.group_takeoff_user,1,1,0,0
+access_takeoff_request,takeoff.request.user,model_takeoff_request,wave_takeoff.group_takeoff_user,1,1,1,0
+access_takeoff_request_line,takeoff.request.line.user,model_takeoff_request_line,wave_takeoff.group_takeoff_user,1,1,1,0
 access_takeoff_request_manager,takeoff.request.manager,model_takeoff_request,wave_takeoff.group_takeoff_manager,1,1,1,1
 access_takeoff_request_line_manager,takeoff.request.line.manager,model_takeoff_request_line,wave_takeoff.group_takeoff_manager,1,1,1,1
+access_takeoff_request_stock_manager,takeoff.request.stock.manager,model_takeoff_request,stock.group_stock_manager,1,1,0,0
+access_takeoff_request_line_stock_manager,takeoff.request.line.stock.manager,model_takeoff_request_line,stock.group_stock_manager,1,1,0,0
 access_takeoff_account_budget_post_accountant,account.budget.post accountant,account_budget.model_account_budget_post,sales_team.group_sale_salesman,1,0,0,0
 access_takeoff_crossovered_budget_accountant,crossovered.budget accountant,account_budget.model_crossovered_budget,sales_team.group_sale_salesman,1,1,1,0
 access_takeoff_crossovered_budget_lines_accountant,crossovered.budget.lines accountant,account_budget.model_crossovered_budget_lines,sales_team.group_sale_salesman,1,1,1,0

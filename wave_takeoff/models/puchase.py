@@ -13,7 +13,10 @@ class PurchaseOrder(models.Model):
         string='Sales Order',
         copy=False
     )
-    can_create_takeoff = fields.Boolean(related='picking_type_id.is_need_takeoff', readonly=True)
+    can_create_takeoff = fields.Boolean(
+        related='picking_type_id.is_need_takeoff',
+        readonly=True
+    )
     takeoff_id = fields.Many2one('takeoff.request')
 
     @api.onchange('is_takeoff')
@@ -94,7 +97,14 @@ class PurchaseOrderLine(models.Model):
                 warning['message'] = message
 
         if self.order_id.is_takeoff:
-            popup.update(domain={'product_id': ['|', '&', ('is_takeoff', '=', True), ('purchase_ok', '=', True), ('categ_id.is_takeoff', '=', True), ('purchase_ok', '=', True)]})
+            popup.update(
+                domain={
+                    'product_id': [
+                        '|', '&', ('is_takeoff', '=', True), ('purchase_ok', '=', True),
+                        ('categ_id.is_takeoff', '=', True), ('purchase_ok', '=', True)
+                    ]
+                }
+            )
         if warning:
             popup.update(warning=warning)
         return popup

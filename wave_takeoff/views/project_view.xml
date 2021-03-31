@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="project_project_form_inherit_wave_takeoff" model="ir.ui.view">
+            <field name="name">wave_takeoff.project_project.form</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='attachment_tree_view']" position="after">
+                   <button class="oe_stat_button" name="takeoff_tree_view" type="object" icon="fa-code-fork" attrs="{'invisible': [('takeoff_count', '=', 0)]}">
+                            <field string="Takeoff" name="takeoff_count" widget="statinfo"/>
+                        </button>
+                </xpath>
+
+            </field>
+        </record>
+    </data>
+</odoo>

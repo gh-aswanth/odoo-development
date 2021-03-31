@@ -9,30 +9,30 @@
                 <form string="Take Off Request">
                     <header>
                         <field name="state" widget="statusbar"/>
-                        <button name="post" status="" string="Request" type="object" class="oe_highlight" groups="wave_takeoff.group_takeoff_manager" states="draft"/>
-                        <button name="initiate_request" string="Confirm" type="object" class="oe_highlight" groups="stock.group_stock_manager" states="requested"/>
+                        <button name="post" status=""
+                                string="Request" type="object"
+                                class="oe_highlight" groups="wave_takeoff.group_takeoff_manager"
+                                states="draft"/>
+                        <button name="initiate_request" string="Confirm"
+                                type="object" class="oe_highlight"
+                                groups="stock.group_stock_manager" states="requested"/>
                     </header>
-                    <div class="alert alert-info alert-dismissible rounded-0 fade show d-print-none css_editable_mode_hidden">
+                   <!--  <div class="alert alert-info alert-dismissible rounded-0 fade show d-print-none css_editable_mode_hidden">
                         <div class="container">
                             <div class="text-center">
                                 <b style="color:red;">BETA VERSION [UNDER DEVELOPMENT]</b>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button class="oe_stat_button"
                                     name="button_request_lines"
                                     string="Summary"
-                                    type="object" groups="base.group_user" icon="fa-bars"
+                                    type="object" icon="fa-bars"
                                     context="{'takeoff_change': True}"/>
-                            <button class="oe_stat_button"
-                                    name="button_request_lines"
-                                    string="Line Items"
-                                    type="object" groups="base.group_user" icon="fa-bars"/>
                         </div>
                         <div class="oe_title">
-                            <label for="name"/>
                             <h1>
                                 <field name="name" placeholder="Code"/>
                             </h1>
@@ -48,31 +48,45 @@
                                 </div>
                             </group>
                             <group>
-                                <field name="request_template_id"/>
-                                <field name="inventory_users_ids" widget="many2many_tags"/>
+                                <field name="request_template_id" context="{'form_view_ref': 'wave_takeoff.sale_order_template_view_form_inherit_wave_takeoff'}"/>
+                                <field name="inventory_users_ids" widget="many2many_tags" invisible="1"/>
+                                <field name="company_id"/>
                                 <field name="currency_id" invisible="1"/>
                             </group>
                         </group>
                         <notebook>
                             <page name="takeoff_lines" string="Lines">
-                                 <field name="request_line_ids" widget="section_and_note_one2many" mode="tree">
-                                    <tree editable="bottom" create="false">
+                                 <field name="request_line_ids" widget="section_and_note_one2many" mode="tree" attrs="{'readonly': [('state', '!=', 'draft')]}">
+                                    <tree editable="bottom">
                                         <control>
-                                            <create name="add_product_control" string="Add a product"/>
-                                            <create name="add_section_control" string="Add a section" context="{'default_display_type': 'line_section'}"/>
-                                            <create name="add_note_control" string="Add a note" context="{'default_display_type': 'line_note'}"/>
+                                            <create name="add_product_control"
+                                                    string="Add a product"/>
+                                            <create name="add_section_control"
+                                                    string="Add a section" context="{'default_display_type': 'line_section'}"/>
+                                            <create name="add_note_control"
+                                                    string="Add a note" context="{'default_display_type': 'line_note'}"/>
                                         </control>
                                         <field name="display_type" invisible="1" />
                                         <field name="sequence" widget="handle"/>
-                                        <field name="product_id" attrs="{'invisible': [('display_type', '!=', False)], 'required': [('display_type', '=', False)]}" readonly="1" force_save="1"/>
+                                        <field name="product_id" attrs="{
+                                               'invisible': [('display_type', '!=', False)],
+                                               'required': [('display_type', '=', False)]}" force_save="1"
+                                        context="{'takeoff_order': parent.order_id}"/>
                                         <field name="name" widget="section_and_note_text" readonly="1" force_save="1"/>
-                                        <field name="product_category_id" readonly="1" attrs="{'invisible': [('display_type', '!=', False)]}"/>
-                                        <field name="product_uom_qty" attrs="{'invisible': [('display_type', '!=', False)]}"/>
-                                        <field name="product_uom" attrs="{'invisible': [('display_type', '!=', False)]}" readonly="1" force_save="1"/>
-                                        <field name="qty_delivered" attrs="{'invisible': [('display_type', '!=', False)]}"/>
+                                        <field name="product_category_id"
+                                               readonly="1" attrs="{'invisible': [('display_type', '!=', False)]}"/>
+                                        <field name="product_uom_qty"
+                                               attrs="{'invisible': [('display_type', '!=', False)]}"/>
+                                        <field name="product_uom"
+                                               attrs="{'invisible': [('display_type', '!=', False)]}"
+                                               readonly="1" force_save="1"/>
+                                        <field name="qty_delivered"
+                                               attrs="{'invisible': [('display_type', '!=', False)]}" optional="hide"/>
                                         <field name="product_uom_category_id" invisible="1"/>
-                                        <field name="purchase_price" attrs="{'invisible': [('display_type', '!=', False)]}" />
-                                        <field name="price_subtotal" attrs="{'invisible': [('display_type', '!=', False)]}" sum="Total"/>
+                                        <field name="purchase_price"
+                                               attrs="{'invisible': [('display_type', '!=', False)]}" />
+                                        <field name="price_subtotal"
+                                               attrs="{'invisible': [('display_type', '!=', False)]}" sum="Total"/>
                                     </tree>
                                      <form>
                                          <sheet>
@@ -90,21 +104,34 @@
                                                      <field name="qty_delivered"/>
                                                      <field name="qty_to_deliver"/>
                                                  </group>
-                                                 <group string="Logistics">
+                                                 <group string="Logistics" groups="stock.group_stock_user">
                                                      <field name="is_mto"/>
                                                      <field name="virtual_available_at_date"/>
                                                      <field name="free_qty_today"/>
                                                      <field name="display_qty_widget" invisible="1"/>
                                                  </group>
                                              </group>
-                                             <group string="Stock Moves">
-                                                 <field name="move_ids" nolabel="1"/>
+                                             <group string="Purchase Lines" attrs="{'invisible': [('purchase_line_ids', '=', [])]}">
+                                                 <field name="purchase_line_ids" nolabel="1" groups="stock.group_stock_user">
+                                                     <tree>
+                                                         <field name="date_planned"/>
+                                                         <field name="order_id"/>
+                                                         <field name="partner_id"/>
+                                                         <field name="product_id"/>
+                                                         <field name="product_qty"/>
+                                                         <field name="product_uom"/>
+                                                         <field name="state"/>
+                                                     </tree>
+                                                 </field>
+                                             </group>
+                                             <group string="Stock Moves" attrs="{'invisible': [('move_ids', '=', [])]}">
+                                                 <field name="move_ids" nolabel="1" groups="stock.group_stock_user"/>
                                              </group>
                                          </sheet>
                                      </form>
                                 </field>
                             </page>
-                            <page string="Procurements">
+                            <page string="Procurements" attrs="{'invisible': [('purchase_ids', '=', []), ('picking_ids', '=', [])]}" groups="stock.group_stock_user">
                                 <separator string="Purchase Orders" attrs="{'invisible': [('purchase_ids', '=', [])]}"/>
                                 <field name="purchase_ids" readonly="1" attrs="{'invisible': [('purchase_ids', '=', [])]}"/>
                                 <separator string="Stock Moves" attrs="{'invisible': [('picking_ids', '=', [])]}"/>
@@ -112,18 +139,25 @@
                             </page>
                             <page string="Settings">
                                 <group>
-                                    <group string="Route Settings">
+                                    <group string="Route Settings" groups="stock.group_stock_user">
                                         <label for="qty_fully_available" colspan="4"/>
-                                        <field name="qty_fully_available" nolabel="1"/>
+                                        <field name="qty_fully_available" nolabel="1"
+                                               domain="[('company_id', '=', company_id), ('takeoff_selectable', '=', True)]"
+                                               attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                         <label for="qty_partially_available" colspan="4"/>
-                                        <field name="qty_partially_available" nolabel="1"/>
+                                        <field name="qty_partially_available" nolabel="1"
+                                               domain="[('company_id', '=', company_id), ('takeoff_selectable', '=', True)]"
+                                               attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                         <label for="qty_not_available" colspan="4"/>
-                                        <field name="qty_not_available" nolabel="1"/>
+                                        <field name="qty_not_available" nolabel="1"
+                                               domain="[('company_id', '=', company_id), ('takeoff_selectable', '=', True)]"
+                                               attrs="{'readonly': [('state', '!=', 'draft')]}"/>
                                     </group>
                                     <group>
-                                        <field name="picking_policy"/>
-                                        <field name="warehouse_id"/>
-                                        <field name="group_id"/>
+                                        <field name="picking_policy" groups="stock.group_stock_user"/>
+                                        <field name="warehouse_id" groups="stock.group_stock_user"
+                                               attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                        <field name="group_id" readonly="1"/>
                                     </group>
                                 </group>
                             </page>
@@ -155,6 +189,8 @@
                     <field name="name"/>
                     <field name="order_id"/>
                     <field name="analytic_account_id"/>
+                    <field name="commitment_date"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -170,6 +206,8 @@
                     <field name="section" invisible="1"/>
                     <field name="product_category_id"/>
                     <field name="product_uom_qty"/>
+                    <field name="purchase_price"/>
+                    <field name="price_subtotal"/>
                 </tree>
             </field>
         </record>
@@ -226,19 +264,21 @@
             <field name="name">Take Off Picking List</field>
             <field name="res_model">stock.picking</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="view_mode">tree,kanban,form,calendar</field>
-            <field name="domain">[('state', '=', 'done'), ('is_takeoff', '=', True)]</field>
-            <field name="context">{'search_default_picking_type': 1}</field>
+            <field name="view_mode">kanban,tree,form,calendar</field>
+            <field name="domain">[('state', '!=', 'cancel'), ('is_takeoff', '=', True)]</field>
+            <field name="context">{'search_default_picking_type': 1, 'create': False}</field>
         </record>
 
-         <menuitem id="wave_takeoff_menu_root"
+        <menuitem id="wave_takeoff_menu_root"
                   name="Take Off"
                   web_icon="wave_takeoff,static/description/icon.png"
+                  groups="wave_takeoff.group_takeoff_user,stock.group_stock_manager"
                   sequence="1"/>
 
         <menuitem id="takeoff_request_menu"
                   name="Request"
                   parent="wave_takeoff_menu_root"
+                  groups="wave_takeoff.group_takeoff_user,stock.group_stock_manager"
                   sequence="2"/>
 
         <menuitem id="takeoff_request_child1_menu"

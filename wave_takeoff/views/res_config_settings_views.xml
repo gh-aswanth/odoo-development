@@ -9,28 +9,41 @@
             <xpath expr="//div[hasclass('settings')]" position="inside">
                 <div class="app_settings_block" data-string="Takeoff" string="Takeoff" data-key="wave_takeoff">
                     <h2>Takeoff</h2>
+
                     <div class="row mt16 o_settings_container">
                         <label for="default_request_template_id" string="Default Takeoff Template"
                                class="col-lg-4 o_light_label"/>
-                        <field name="default_request_template_id" class="oe_inline"/>
+                        <field name="default_request_template_id"
+                               domain="[('is_takeoff', '=', True)]" class="oe_inline"
+                               options="{'no_create_edit': True, 'no_create':True}"
+                               context="{'form_view_ref': 'wave_takeoff.sale_order_template_view_form_inherit_wave_takeoff'}"/>
                     </div>
                     <div class="row mt16 o_settings_container">
                         <label for="default_inventory_users_ids" class="col-lg-4 o_light_label"/>
-                        <field name="default_inventory_users_ids" class="oe_inline" widget="many2many_tags"/>
+                        <field name="default_inventory_users_ids" class="oe_inline"
+                               widget="many2many_tags"
+                               options="{'no_create_edit': True, 'no_create':True}"/>
                     </div>
+
+
                     <div class="row mt16 o_settings_container">
                         <label for="default_qty_fully_available" class="col-lg-4 o_light_label"/>
-                        <field name="default_qty_fully_available" class="oe_inline"/>
+                        <field name="default_qty_fully_available" class="oe_inline"
+                               domain="[('company_id', '=', company_id), ('takeoff_selectable', '=', True)]"
+                               options="{'no_create_edit': True, 'no_create':True}"/>
                     </div>
                     <div class="row mt16 o_settings_container">
                         <label for="default_qty_partially_available" class="col-lg-4 o_light_label"/>
-                        <field name="default_qty_partially_available" class="oe_inline"/>
+                        <field name="default_qty_partially_available" class="oe_inline"
+                               domain="[('company_id', '=', company_id), ('takeoff_selectable', '=', True)]"
+                               options="{'no_create_edit': True, 'no_create':True}"/>
                     </div>
                     <div class="row mt16 o_settings_container">
                         <label for="default_qty_not_available" class="col-lg-4 o_light_label"/>
-                        <field name="default_qty_not_available" class="oe_inline"/>
+                        <field name="default_qty_not_available" class="oe_inline"
+                               domain="[('company_id', '=', company_id), ('takeoff_selectable', '=', True)]"
+                               options="{'no_create_edit': True, 'no_create':True}"/>
                     </div>
-
                 </div>
             </xpath>
         </field>
@@ -44,12 +57,6 @@
         <field name="target">inline</field>
         <field name="context">{'module': 'wave_takeoff'}</field>
     </record>
-
-    <menuitem id="menu_takeoff_configuration"
-              name="Configuration"
-              parent="wave_takeoff_menu_root"
-              groups="base.group_no_one"
-              sequence="4"/>
 
     <menuitem id="menu_job_config"
               name="Settings"

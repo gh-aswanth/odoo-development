@@ -2,21 +2,6 @@
 <odoo>
     <data>
 
-<!--        <record id="product_template_form_view_form_inherit_wave_takeoff" model="ir.ui.view">-->
-<!--            <field name="name">product.template.form.view.form.inherit.wave.takeoff</field>-->
-<!--            <field name="model">product.template</field>-->
-<!--            <field name="inherit_id" ref="account.product_template_form_view"/>-->
-<!--            <field name="priority" eval="8"/>-->
-<!--            <field name="arch" type="xml">-->
-<!--                <xpath expr="//page[@name='invoicing']/group[@name='properties']" position="before">-->
-<!--                    <group string="Budget">-->
-<!--                        <field name="is_budget" widget="boolean_toggle"/>-->
-<!--                    </group>-->
-<!--                </xpath>-->
-
-<!--            </field>-->
-<!--        </record>-->
-
         <record id="view_template_property_form_inherit_wave_takeoff" model="ir.ui.view">
             <field name="name">view.template.property.form.inherit.wave.takeoff</field>
             <field name="model">product.template</field>
@@ -47,6 +32,7 @@
         <menuitem id="wave_takeoff_product_menu"
                   name="Product"
                   parent="wave_takeoff_menu_root"
+                  groups="wave_takeoff.group_takeoff_user,stock.group_stock_manager"
                   sequence="3"/>
 
         <menuitem id="menu_product_variant_config_stock"
@@ -62,10 +48,10 @@
                   sequence="2"/>
 
         <menuitem id="menu_wave_product_category"
-              name="Products Category"
-              action="product.product_category_action_form"
-              parent="wave_takeoff_product_menu"
-              sequence="3"/>
+                  name="Products Category"
+                  action="product.product_category_action_form"
+                  parent="wave_takeoff_product_menu"
+                  sequence="3"/>
 
     </data>
 </odoo>

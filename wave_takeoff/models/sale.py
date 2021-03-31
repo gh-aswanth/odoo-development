@@ -12,7 +12,7 @@ class SaleOrder(models.Model):
 
     def _compute_takeoff_count(self):
         for rec in self:
-            rec.takeoff_count = len(rec.takeoff_ids)
+            rec.takeoff_count = len(rec.takeoff_ids.mapped('picking_ids').mapped('move_line_ids'))
 
     def open_takeoff_tree_view(self):
         action = self.env.ref('wave_takeoff.takeoff_stock_move_line_action').read()[0]

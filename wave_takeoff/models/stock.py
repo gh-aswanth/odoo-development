@@ -126,13 +126,15 @@ class StockMove(models.Model):
         self.ensure_one()
         rslt = super(StockMove, self)._generate_valuation_lines_data(partner_id, qty, debit_value, credit_value, debit_account_id, credit_account_id, description)
         is_return = any(m.origin_returned_move_id for m in self.picking_id.move_ids_without_package)
+        product_valuation = self.product_id.categ_id.property_stock_valuation_account_id
+        analytic_account = self.picking_id.analytic_account_id
         if self.picking_id.is_takeoff and not is_return:
-            if self.product_id.categ_id.property_stock_valuation_account_id.id != debit_account_id:
-                rslt['debit_line_vals']['analytic_account_id'] = self.picking_id.analytic_account_id.id
+            if product_valuation.id != debit_account_id:
+                rslt['debit_line_vals']['analytic_account_id'] = analytic_account.id
         # if the takeoff is returned from customer then we need to reverse the expense entry from our system.
         if self.picking_id.is_takeoff and is_return:
-            if self.product_id.categ_id.property_stock_valuation_account_id.id != credit_account_id:
-                rslt['credit_line_vals']['analytic_account_id'] = self.picking_id.analytic_account_id.id
+            if product_valuation.id != credit_account_id:
+                rslt['credit_line_vals']['analytic_account_id'] = analytic_account.id
         return rslt
 
 
@@ -152,7 +154,11 @@ class StockMoveLine(models.Model):
         readonly=True,
         store=True
     )
-    takeoff_request_id = fields.Many2one(related='move_id.takeoff_line_id.request_id', store=True, readonly=True)
+    takeoff_request_id = fields.Many2one(
+        related='move_id.takeoff_line_id.request_id',
+        store=True,
+        readonly=True
+    )
 
     @api.onchange('product_id')
     def _onchange_product_id(self):
@@ -171,7 +177,9 @@ class StockMoveLine(models.Model):
                 warning['message'] = message
 
         if self.picking_id.is_takeoff:
-            popup.update(domain={'product_id': ['|', ('is_takeoff', '=', True), ('categ_id.is_takeoff', '=', True)]})
+            popup.update(domain={
+                'product_id': ['|', ('is_takeoff', '=', True), ('categ_id.is_takeoff', '=', True)]
+            })
         if warning:
             popup.update(warning=warning)
         return popup

@@ -10,5 +10,6 @@ from . import stock
 from . import stock_picking
 from . import takeoff_request
 from . import sale_order_template
+from . import project
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
