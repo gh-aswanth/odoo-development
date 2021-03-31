@@ -1,0 +1,9 @@
+# Python:
+*.py[cod]
+*.so
+*.egg
+*.egg-info
+*.~csv
+__pycache__/
+.vscode/
+*.DS_Store
