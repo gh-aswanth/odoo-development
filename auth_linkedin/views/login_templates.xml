@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="auth_linkedin.login" inherit_id="web.login" name="oAuth Force Warning buttons">
+            <xpath expr="//input[@name='csrf_token']" position="after">
+                <p class="alert alert-warning" t-if="warning">
+                    <t t-esc="warning"/>
+                </p>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

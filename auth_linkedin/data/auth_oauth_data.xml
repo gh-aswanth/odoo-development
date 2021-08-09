@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="provider_linkedin" model="auth.oauth.provider">
+            <field name="name">Linkedin Auth2.0</field>
+            <field name="is_linkedin">True</field>
+            <field name="auth_endpoint">https://www.linkedin.com/oauth/v2/authorization</field>
+            <field name="scope">r_emailaddress r_liteprofile</field>
+            <field name="validation_endpoint">https://www.linkedin.com/oauth/v2/accessToken</field>
+            <field name="css_class">fa fa-linkedin</field>
+            <field name="body">Log in with Linkedin</field>
+        </record>
+
+    </data>
+</odoo>

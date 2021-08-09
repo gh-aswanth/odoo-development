@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_oauth_provider_form_azure">
+            <field name="name">auth.oauth.provider.form.azure</field>
+            <field name="model">auth.oauth.provider</field>
+            <field name="inherit_id" ref="auth_oauth.view_oauth_provider_form" />
+            <field name="arch" type="xml">
+
+                <field name="enabled" position="after">
+                    <field name="is_linkedin"/>
+                </field>
+
+                <field name="data_endpoint" position="after">
+                    <field name="client_secret" password="True" attrs="{'invisible': [('is_linkedin', '=', False)]}"/>
+                </field>
+
+                <xpath expr="//sheet[last()]" position="inside">
+                    <blockquote attrs="{'invisible':[('is_linkedin','=',False)]}">
+                        To setup the signin process with Azure, first you have to perform the following steps:<br/>
+                        <br/>
+                        - Go to the <a href="https://apps.dev.microsoft.com">Azure APIs</a><br/>
+                        - For create Click on "Add An App" Button<br/>
+                        - And copy of Application Id and past in client_id field<br/>
+                        - In Application Secrets 1) Generate New Key Pair 2) Generate New Password<br/>
+                        - And Copy Generate New Password paste in Client Secret Password field<br/>
+                        - Click on Add "Plateform" Button And Select "Web"<br/>
+                        - Add In Redirect URIs -> Enter Url: http://HOSTNAME/auth_oauth/signin. <br/>
+                    </blockquote>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

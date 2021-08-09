@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- sftp config form view   -->
+    <record id="view_edi_sftp_config_form" model="ir.ui.view">
+        <field name="name">edi.sftp.config.form</field>
+        <field name="model">edi.sftp.config</field>
+        <field name="arch" type="xml">
+            <form string="SFTP Configuration">
+                <div class="alert alert-danger" role="alert" style="margin-bottom:0px;text-align:center;font-size:20px;" attrs="{'invisible': [('show_warning','=',True)]}">
+                    <bold>Disconnected.</bold>
+                </div>
+                <div class="alert alert-success" role="alert" style="margin-bottom:0px;text-align:center;font-size:20px;" attrs="{'invisible': [('show_warning','=',False)]}">
+                    <bold>Connected.</bold>
+                </div>
+                <sheet>
+                    <field name="show_warning" invisible="1"/>
+                     <div class="oe_button_box" name="button_box">
+                         <button name="check_connection"
+                                 type="object"
+                                 class="oe_stat_button"
+                                 icon="fa-sign-in" string="Check Connection">
+                         </button>
+                     </div>
+
+                    <group col="4" string="SFTP Configuration">
+                        <group colspan="2">
+                            <field name="name"/>
+                            <field name="host" />
+                            <field name="port" />
+                        </group>
+                        <group colspan="2">
+                            <field name="username" />
+                            <field name="password" password="True" />
+                        </group>
+                         <group colspan="2">
+                            <field name="file_path_in" />
+                            <field name="file_path_out" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+
+    <!-- TREE VIEW Configuration-->
+
+    <record model="ir.ui.view" id="edi_sftp_tree">
+        <field name="name">edi.sftp.config.tree</field>
+        <field name="model">edi.sftp.config</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="SFTP Configuration">
+                <field name="name" />
+            </tree>
+        </field>
+    </record>
+
+
+
+    <!-- ACTION Configuration-->
+
+    <record id="action_edi_sftp_config" model="ir.actions.act_window" >
+        <field name="name">SFTP Configuration</field>
+        <field name="res_model">edi.sftp.config</field>
+       <field name="view_mode">tree,form</field>
+         <field name="view_id" ref="edi_sftp_tree" />
+    </record>
+
+
+
+    <!---Ftp configuration-->
+
+
+    <menuitem id="menu_edi_sftp_config" name="SFTP Configuration" parent="base.menu_security" action="action_edi_sftp_config" />
+
+
+</odoo>
